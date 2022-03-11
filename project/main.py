@@ -1,38 +1,61 @@
+"""
+Vision Based Navigation Project
+Augusta University
+3/11/2022
+
+This is the entry point into the tracking program.
+
+main.py
+"""
+# Python Imports
 import concurrent.futures
-import cv2
-from model import Model
+import cv2 
+from djitellopy import Tello
+from djitellopy import TelloSwarm
+# Custom Imports
+from model import Model as Mod
 
 
-def main():
-    """ Entry to the program"""
+def TelloSwarmScript(swarm):
+    """ Commands to send to the drones """
+    swarm.takeoff()
+    swarm.parallel(lambda i,
+                   tello: tello.curve_xyz_speed(25, -25, 0, 25, -75, 0, 20))
+    swarm.land()
 
-    PATH_TO_SAVED_MODEL = r'.\resources\model\saved_model'
-    PATH_TO_LABELS = r'.\resources\annotations\label_map.pbtxt'
+def TelloConnection():
+    """ Function to connect to the drones """
+    drone = Tello('192.168.1.200')
+    drone2 = Tello('192.168.1.100')
 
-    # How many boxes do we expect?
-    MAX_BOXES = 6
-    # How confident does the model need to be to display any bouding box?
-    MIN_SCORE_THRESH = .70
+    swarm = TelloSwarm([drone, drone2])
+    swarm.connect()
 
-    cam = cv2.VideoCapture(0)
+    return [drone, drone2, swarm]
 
-    Tf_Model = Model(PATH_TO_SAVED_MODEL, PATH_TO_LABELS,
-                     cam, MAX_BOXES, MIN_SCORE_THRESH)
+def main_with_threading():
+    """ Main Function
+        Creates a thread for tracking, 
+        drone control, 
+        and a cv2 windows to view the tracking.
+    """
+    Model = Mod()
+
+    #drone, drone2, swarm = TelloConnection()
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        executor.submit(Tf_Model.update_vectors_thread)
+        executor.submit(Model.basic_detection_thread)
 
         while True:
-            cv2.imshow("Vector", Tf_Model.bounding_box_img)
+            cv2.imshow('Test', Model.thread_img)
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
-
-        # Clean Exit
+        
         cv2.destroyAllWindows()
-        Tf_Model.cam.release()
+        Model.cam.release()
         executor.shutdown(wait=False)
 
-
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    main_with_threading()
+        
