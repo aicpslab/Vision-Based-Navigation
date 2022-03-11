@@ -12,21 +12,36 @@ import concurrent.futures
 import cv2 
 from djitellopy import Tello
 from djitellopy import TelloSwarm
+import time
 # Custom Imports
 from model import Model as Mod
 
 
-def TelloSwarmScript(swarm):
+def TelloSwarmScript(drone_objs):
     """ Commands to send to the drones """
+
+    def do_stuff(i, tello):
+        if i == 0:
+            tello.curve_xyz_speed(70,70,0,140,0,0,20)
+            swarm.sync()
+            tello.curve_xyz_speed(-70,-70,0,-140,0,0,20)
+            swarm.sync()
+        elif i == 1:
+            tello.curve_xyz_speed(-70,-70,0,-140,0,0,20)
+            swarm.sync()
+            tello.curve_xyz_speed(70,70,0,140,0,0,20)
+            swarm.sync()
+
+    time.sleep(5)
+    drone, drone2, swarm = drone_objs
     swarm.takeoff()
-    swarm.parallel(lambda i,
-                   tello: tello.curve_xyz_speed(25, -25, 0, 25, -75, 0, 20))
+    swarm.parallel(do_stuff)
     swarm.land()
 
 def TelloConnection():
     """ Function to connect to the drones """
-    drone = Tello('192.168.1.200')
-    drone2 = Tello('192.168.1.100')
+    drone = Tello('192.168.1.100')
+    drone2 = Tello('192.168.1.200')
 
     swarm = TelloSwarm([drone, drone2])
     swarm.connect()
@@ -41,10 +56,12 @@ def main_with_threading():
     """
     Model = Mod()
 
-    #drone, drone2, swarm = TelloConnection()
+    drone_objs = TelloConnection()
+    drone, drone2, swarm = drone_objs
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
         executor.submit(Model.basic_detection_thread)
+        executor.submit(TelloSwarmScript, drone_objs)
 
         while True:
             cv2.imshow('Test', Model.thread_img)
@@ -55,7 +72,8 @@ def main_with_threading():
         cv2.destroyAllWindows()
         Model.cam.release()
         executor.shutdown(wait=False)
+        swarm.land()
 
 if __name__ == '__main__':
     main_with_threading()
-        
+       
