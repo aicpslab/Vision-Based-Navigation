@@ -60,4 +60,4 @@ class Point(Sequence):
         if not isinstance(other, Point):
             return NotImplemented
         else:
-            return sqrt((self.x - other.x)**2 + (self.y - self.x)**2)
+            return sqrt((self.x - other.x)**2 + (self.y - other.y)**2)

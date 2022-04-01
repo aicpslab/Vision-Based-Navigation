@@ -25,6 +25,7 @@ class velocityTracker():
     dir_vec : Point = field(init=False, default=None)
     flag_vec : Point = field(init=False, default=None)
     turn_angle : int = field(init=False, default=None)
+    flag_distance : int = field(init=False, default=None)
 
     def update_vectors(self):
         """ Updates all the vectors and angles
@@ -37,3 +38,4 @@ class velocityTracker():
         det = self.dir_vec.dot(self.flag_vec)
 
         self.turn_angle = atan2(det, dot) * 180/pi
+        self.flag_distance = self.vec_end.dist(self.target_flag)

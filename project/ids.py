@@ -36,6 +36,7 @@ class ID:
     position_history : list[Point] = field(init=False)
     
     # Class Methods
+
     @classmethod
     def createID(cls, point:Point, color:tuple):
         """ Creates an ID and puts it in the instances list """
