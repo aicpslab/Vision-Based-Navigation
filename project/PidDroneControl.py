@@ -7,23 +7,25 @@ from point import Point
 
 class PidDroneControl:
 
-    def __init__(self, drone_object, point:Point, instance_num):
+    def __init__(self, drone_object, point:Point, instance_num, kp, ki, kd):
         self.drone = drone_object
         # Set point is relative to the camera pixel.
         self.range = 20
-        self.x_set = point.x
-        self.y_set = point.y
+        x_set = point.x
+        y_set = point.y
         self.wait_time = 0
         self.new_point = False
-        self.pidx= PID(0.20, 0.05, 0.05, setpoint=self.x_set, output_limits=(-self.range,self.range))
-        self.pidy = PID(0.20, 0.05, 0.05, setpoint=self.y_set, output_limits=(-self.range,self.range))
+        self.pidx= PID(kp, ki, kd, setpoint=x_set, output_limits=(-self.range,self.range))
+        self.pidy = PID(kp, ki, kd, setpoint=y_set, output_limits=(-self.range,self.range))
+        #self.pidx= PID(0.20, 0.05, 0.05, setpoint=self.x_set, output_limits=(-self.range,self.range))
+        #self.pidy = PID(0.20, 0.05, 0.05, setpoint=self.y_set, output_limits=(-self.range,self.range))
         self.f_b_vel = 0
         self.u_d_vel = 0
         self.yaw_vel = 0
         self.l_r_vel = 0
 
         self.d2d = 0
-        self.destination = Point(self.x_set, self.y_set)
+        self.destination = point
 
         self.instance_num = instance_num
 
