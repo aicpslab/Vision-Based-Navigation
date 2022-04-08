@@ -20,7 +20,7 @@ class Camera:
     """ Class tha manages a cv2.VideoCapture Object
         Converts every picture to RGB format. """
     
-    def __init__(self, camera_index):
+    def __init__(self, camera_index:int):
         self.cam = cv2.VideoCapture(camera_index)
 
         initial_img = self.initial_connect()

@@ -27,19 +27,8 @@ class PidDroneControl:
 
         self.instance_num = instance_num
 
-        # self.start_time = time.perf_counter()
-        # self.new_time = time.perf_counter()
-        # self.time_list = []
-        # self.pv_x = []
-        # self.pv_y = []
-
     def update_velocity(self):
-        
-        # self.time_list.append(self.new_time - self.start_time)
-        # self.new_time = time.perf_counter()
-        # self.pv_x.append(position.x)
-        # self.pv_y.append(position.y)
-        
+    
         # Get new control values
         position = ID.instances[self.instance_num].position
         self.l_r_vel = self.pidx(position.x)
@@ -69,10 +58,4 @@ class PidDroneControl:
         self.new_point = False
         self.wait_time = 0
         self.destination = setpoint
-
-    # def export_to_json(self):
-    #     with open("data_file.json", "w") as write_file:
-    #         json.dump(self.time_list,write_file)
-    #         json.dump(self.pv_x,write_file)
-    #         json.dump(self.pv_y,write_file)
     

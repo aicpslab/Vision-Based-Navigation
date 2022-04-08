@@ -13,6 +13,7 @@ ids.py
 from dataclasses import dataclass, field
 from typing import ClassVar
 from cv2 import circle, line, putText, FONT_HERSHEY_PLAIN, imshow, waitKey
+from collections import deque
 # Custom Imports
 from point import Point
 from velocityTracker import velocityTracker
@@ -33,7 +34,7 @@ class ID:
     color : tuple = field(default=dc.red)
     id_num : int = field(init=False)
     velocityTracking : velocityTracker = field(init=False)
-    position_history : list[Point] = field(init=False)
+    position_history : deque = field(init=False)
     
     # Class Methods
 
@@ -107,9 +108,8 @@ class ID:
     def draw_histories(cls, img, num_points):
         """ Draws Points that each ID was previously registered at. """
         for id in cls.instances:
-            history = id.getHistory(num_points)
-            for point in history:
-                img = circle(img, point, dc.circle_radius, id.color, dc.circle_thickness)
+            for point in id.position_history:
+                img = circle(img, (point.x, point.y) , dc.circle_radius, id.color, dc.circle_thickness)
         return img 
     
     @classmethod
@@ -147,11 +147,11 @@ class ID:
 
     # Instance Methods
     def __post_init__(self):
-        self.position_history = [self.position]
+        self.position_history = deque([self.position], maxlen=30)
         self. velocityTracking = velocityTracker()
     
     def appendPosition(self, position:Point):
-        self.position_history.append(position)
+        self.position_history.appendleft(position)
         self.position = position
     
     def getHistory(self, num_points:int):
