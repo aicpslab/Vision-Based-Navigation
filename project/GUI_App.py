@@ -1,5 +1,5 @@
 from PyQt5 import QtGui
-from PyQt5.QtWidgets import QWidget, QApplication, QLabel, QVBoxLayout, QPushButton, QLineEdit
+from PyQt5.QtWidgets import QWidget, QApplication, QLabel, QVBoxLayout, QPushButton, QLineEdit, QGridLayout, QHBoxLayout
 from PyQt5.QtGui import QPixmap
 import sys
 import cv2
@@ -13,18 +13,16 @@ from point import Point
 class VideoThread(QThread):
     change_pixmap_signal = pyqtSignal(np.ndarray)
     no_change_signal = pyqtSignal()
-    #Model = Model()
-
+    
     def __init__(self):
         super().__init__()
         self._run_flag = True
-        self._shut_down = False
         self.cam = cv2.VideoCapture(0)
 
     def run(self):
         # capture from web cam
         while self._run_flag:
-            #img = self.Model.baisc_detection()
+            # img = Mod.baisc_detection()
             _ret, img = self.cam.read()
             self.change_pixmap_signal.emit(img)
         else:
@@ -49,7 +47,6 @@ class DroneConnect(QThread):
         self.drone = None
         self.start()
         
-
     def run(self):
         self.connect()
 
@@ -79,6 +76,8 @@ class App(QWidget):
         self.image_label.resize(self.disply_width, self.display_height)
         # create a text label
         self.textLabel = QLabel('Webcam')
+        self.flag_points_label1 = QLabel('The Flag Points are: ')
+        self.flag_points_lable2 = QLabel(str(Mod.flag_centers))#QLabel(str([(20,20)])) 
 
         # Stream and Drone Stuff
         self.stream_button = QPushButton('Start/Stop Stream', self)
@@ -102,30 +101,53 @@ class App(QWidget):
         self.pid_controller = None
         self.setpoint : Point = Point(320,240)
 
+        # Flag verification Button
+        self.flag_button = QPushButton('Update Flags', self)
+        self.flag_button.clicked.connect(self.update_flags)
 
+        # create a grid box layout and add widgets
+        self.mainBox = QVBoxLayout()
+        self.firstRow = QHBoxLayout()
+        self.secondRow = QHBoxLayout()
 
-        # create a vertical box layout and add the two labels
-        vbox = QVBoxLayout()
-        vbox.addWidget(self.image_label)
-        vbox.addWidget(self.textLabel)
-        vbox.addWidget(self.stream_button)
-        vbox.addWidget(self.tello_ip_button)
-        vbox.addWidget(self.tello_ip_text_box)
-        vbox.addWidget(self.tello_disconnect_button)
-        vbox.addWidget(self.pid_label)
-        vbox.addWidget(self.kp_tb)
-        vbox.addWidget(self.ki_tb)
-        vbox.addWidget(self.kd_tb)
-        vbox.addWidget(self.pid_label_2)
-        vbox.addWidget(self.spx_tb)
-        vbox.addWidget(self.spy_tb)
-        vbox.addWidget(self.create_pid_button)
-        # set the vbox layout as the widgets layout
-        self.setLayout(vbox)
+        self.webCamBox = QVBoxLayout()
+        self.webCamBox.addWidget(self.image_label)
+        self.webCamBox.addWidget(self.textLabel)
+        self.webCamBox.addWidget(self.stream_button)
+        self.firstRow.addLayout(self.webCamBox)
+
+        self.droneBox = QVBoxLayout()
+        self.droneBox.addWidget(self.tello_ip_button)
+        self.droneBox.addWidget(self.tello_ip_text_box)
+        self.droneBox.addWidget(self.tello_disconnect_button)
+        self.secondRow.addLayout(self.droneBox)
+
+        self.PIDBox = QVBoxLayout()
+        self.PIDBox.addWidget(self.pid_label)
+        self.PIDBox.addWidget(self.kp_tb)
+        self.PIDBox.addWidget(self.ki_tb)
+        self.PIDBox.addWidget(self.kd_tb)
+        self.PIDBox.addWidget(self.pid_label_2)
+        self.PIDBox.addWidget(self.spx_tb)
+        self.PIDBox.addWidget(self.spy_tb)
+        self.PIDBox.addWidget(self.create_pid_button)
+        self.secondRow.addLayout(self.PIDBox)
+
+        self.flagBox = QVBoxLayout()
+        self.flagBox.addWidget(self.flag_points_label1)
+        self.flagBox.addWidget(self.flag_points_lable2)
+        self.flagBox.addWidget(self.flag_button)
+        self.secondRow.addLayout(self.flagBox)
+        
+        # Set the Layout of the widget 
+        self.mainBox.addLayout(self.firstRow)
+        self.mainBox.addLayout(self.secondRow)
+        self.setLayout(self.mainBox)
 
         # create the video capture thread
         self.thread = VideoThread()
         self.stream_button.clicked.connect(self.thread.stream_button_click)
+        # create a blank image
         no_stream_img = QtGui.QImage(640, 480, QtGui.QImage.Format_Indexed8)
         no_stream_img.fill(QtGui.qRgb(128, 128, 128))
         self.no_stream_img = QPixmap.fromImage(no_stream_img)
@@ -135,6 +157,10 @@ class App(QWidget):
         # start the thread
         self.thread.start()
     
+    @pyqtSlot()
+    def update_flags(self):
+        self.flag_points_lable2.setText(str(Mod.flag_centers)) # Mod.flag_centers
+
     @pyqtSlot()
     def create_pid(self):
         kp = float(self.kp_tb.text())
@@ -187,6 +213,7 @@ class App(QWidget):
         return QPixmap.fromImage(p)
     
 if __name__=="__main__":
+    Mod = Model()
     app = QApplication(sys.argv)
     a = App()
     a.show()
