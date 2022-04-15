@@ -2,12 +2,13 @@ from ids import ID
 from simple_pid import PID
 import time
 import json
+from djitellopy import Tello
 
 from point import Point
 
 class PidDroneControl:
 
-    def __init__(self, drone_object, point:Point, instance_num, kp, ki, kd):
+    def __init__(self, drone_object:Tello, point:Point, instance_num, kp, ki, kd):
         self.drone = drone_object
         # Set point is relative to the camera pixel.
         self.range = 20
@@ -60,4 +61,7 @@ class PidDroneControl:
         self.new_point = False
         self.wait_time = 0
         self.destination = setpoint
+    
+    def takeoff(self):
+        self.drone.takeoff()
     

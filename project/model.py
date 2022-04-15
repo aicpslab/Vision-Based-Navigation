@@ -39,7 +39,7 @@ class Model:
     # How confident does the model need to be to display any bouding box?
     MIN_SCORE_THRESH = .70
     # Camera Stuff
-    cam = Camera(0)
+    cam = Camera(1)
     imwidth = int(cam.cam.get(cv2.CAP_PROP_FRAME_WIDTH))
     imheight = int(cam.cam.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
@@ -63,8 +63,8 @@ class Model:
         self.flag_category = 2
 
         # Create Two IDS to start
-        ID.createID(Point(640, 0), dc.red)
-        ID.createID(Point(0,480), dc.blue)
+        ID.createID(Point(0, 0), dc.red)
+        ID.createID(Point(0,0), dc.blue)
 
         self.drone_centers = []
         self.flag_centers = []

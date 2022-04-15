@@ -1,3 +1,4 @@
+import concurrent.futures 
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import QWidget, QApplication, QLabel, QVBoxLayout, QPushButton, QLineEdit, QGridLayout, QHBoxLayout
 from PyQt5.QtGui import QPixmap
@@ -9,6 +10,7 @@ from model import Model
 from djitellopy import Tello, TelloSwarm
 from PidDroneControl import PidDroneControl
 from point import Point
+import sys
 
 class VideoThread(QThread):
     change_pixmap_signal = pyqtSignal(np.ndarray)
@@ -17,13 +19,13 @@ class VideoThread(QThread):
     def __init__(self):
         super().__init__()
         self._run_flag = True
-        self.cam = cv2.VideoCapture(0)
+        #self.cam = cv2.VideoCapture(0)
 
     def run(self):
         # capture from web cam
         while self._run_flag:
-            # img = Mod.baisc_detection()
-            _ret, img = self.cam.read()
+            img = Mod.baisc_detection()
+            #_ret, img = self.cam.read()
             self.change_pixmap_signal.emit(img)
         else:
             self.no_change_signal.emit()
@@ -52,7 +54,7 @@ class DroneConnect(QThread):
 
     def connect(self):
         try:
-            self.drone = Tello(self.ip, retry_count=0)
+            self.drone = Tello(self.ip, retry_count=2)
             self.drone.connect()
         except Exception as e:
             print(e)
@@ -63,8 +65,57 @@ class DroneConnect(QThread):
         else:
             self.drone.end()
             print(f'Ended Connection to {self.ip}.')
-            
 
+class ControllerThread(QThread): 
+    def __init__(self):
+        super().__init__()
+        self._run_flag = False
+        self.controllers = None
+        self.des_points = None
+        self.swarm = None
+    
+    def run(self):
+        self._run_flag = True  
+        self.swarm.takeoff()
+        with concurrent.futures.ThreadPoolExecutor() as Executor:
+            while self._run_flag:
+                for controller in self.controllers:
+                    if not controller.new_point:
+                        Executor.submit(controller.update_velocity) 
+                    else:
+                        if self.des_points:
+                            des = self.des_points.pop()
+                            controller.update_setpoints(des)
+                        else:
+                            controller.drone.land()
+                        
+        
+
+class ControlDrone(QThread):
+
+    def __init__(self):
+        super().__init__()
+        self._run_flag = False
+        self.drone: Tello = None
+        self.controller: PidDroneControl = None
+        self.des_points = None
+
+    def run(self):
+        self._run_flag = True
+        
+        self.drone.takeoff()
+        while self._run_flag: 
+            if not self.controller.new_point:
+                self.controller.update_velocity()
+            else:
+                if self.des_points:
+                    des = self.des_points.pop()
+                    self.controller.update_setpoints(des)
+                else:
+                    self.drone.land()
+                    self._run_flag = False
+
+    
 class App(QWidget):
     def __init__(self):
         super().__init__()
@@ -87,6 +138,8 @@ class App(QWidget):
         self.drone: DroneConnect = None
         self.tello_disconnect_button = QPushButton('Disconnect from Current Drone', self)
         self.tello_disconnect_button.clicked.connect(self.drone_disconnect)
+        self.tello_make_multiple_drones_button = QPushButton('Make Drone Objects', self)
+        self.tello_make_multiple_drones_button.clicked.connect(self.make_drone_objects)
 
         # Pid Stuff
         self.pid_label = QLabel('PID Control Values: Kp, Ki, Kd')
@@ -105,10 +158,20 @@ class App(QWidget):
         self.flag_button = QPushButton('Update Flags', self)
         self.flag_button.clicked.connect(self.update_flags)
 
+        # Run program button 
+        self.run_program_button = QPushButton('Start Program', self)
+        if 'swarm' in sys.argv:
+            self.main_program = ControllerThread()
+            self.run_program_button.clicked.connect(self.start_program_swarm) 
+        else:
+            self.main_program = ControlDrone()
+            self.run_program_button.clicked.connect(self.start_program_single)
+
         # create a grid box layout and add widgets
         self.mainBox = QVBoxLayout()
         self.firstRow = QHBoxLayout()
         self.secondRow = QHBoxLayout()
+        self.thirdRow = QHBoxLayout()
 
         self.webCamBox = QVBoxLayout()
         self.webCamBox.addWidget(self.image_label)
@@ -120,6 +183,7 @@ class App(QWidget):
         self.droneBox.addWidget(self.tello_ip_button)
         self.droneBox.addWidget(self.tello_ip_text_box)
         self.droneBox.addWidget(self.tello_disconnect_button)
+        self.droneBox.addWidget(self.tello_make_multiple_drones_button)
         self.secondRow.addLayout(self.droneBox)
 
         self.PIDBox = QVBoxLayout()
@@ -138,10 +202,15 @@ class App(QWidget):
         self.flagBox.addWidget(self.flag_points_lable2)
         self.flagBox.addWidget(self.flag_button)
         self.secondRow.addLayout(self.flagBox)
+
+        self.run_program_box = QVBoxLayout()
+        self.run_program_box.addWidget(self.run_program_button)
+        self.thirdRow.addLayout(self.run_program_box)
         
         # Set the Layout of the widget 
         self.mainBox.addLayout(self.firstRow)
         self.mainBox.addLayout(self.secondRow)
+        self.mainBox.addLayout(self.thirdRow)
         self.setLayout(self.mainBox)
 
         # create the video capture thread
@@ -160,24 +229,85 @@ class App(QWidget):
     @pyqtSlot()
     def update_flags(self):
         self.flag_points_lable2.setText(str(Mod.flag_centers)) # Mod.flag_centers
+        self.des_points = Mod.flag_centers
+
+    @pyqtSlot()
+    def start_program_single(self):
+        if self.main_program._run_flag:
+            self.main_program._run_flag = False
+        else: 
+            self.main_program.drone = self.drone.drone
+            self.main_program.controller = self.pid_controller
+            self.main_program.des_points = self.des_points
+            self.main_program.start()
+
+    @ pyqtSlot()
+    def start_program_swarm(self):
+        if self.main_program._run_flag:
+            self.main_program._run_flag = False
+        else:
+            self.main_program.controllers = self.controllers
+            self.main_program.swarm = self.swarm
+            print(self.swarm)
+            self.main_program.start()
+        
 
     @pyqtSlot()
     def create_pid(self):
-        kp = float(self.kp_tb.text())
-        ki = float(self.ki_tb.text())
-        kd = float(self.kd_tb.text())
+        try:
+            kp = float(self.kp_tb.text())
+            ki = float(self.ki_tb.text())
+            kd = float(self.kd_tb.text())
+        except Exception:
+            kp, ki, kd = 0.2, 0.05, 0.05 
+
         spx = self.spx_tb.text()
         spy = self.spy_tb.text()
         if spx and spy:
             self.setpoint = Point(spx, spy)
+        elif self.des_points:
+            self.setpoint = self.des_points.pop()
+        else:
+            self.setpoint = Point(320,240)
         try:
-            self.pid_controller = PidDroneControl(self.drone, self.setpoint, 0, kp, ki, kd)
+            self.pid_controller = PidDroneControl(self.drone.drone, self.setpoint, 0, kp, ki, kd)
             print(self.pid_controller.pidx.setpoint)
             print(self.pid_controller.pidy.setpoint)
             print(self.pid_controller.pidx.tunings)
             print(self.pid_controller.pidy.tunings)
         except Exception as e:
             print(e)
+    
+    @pyqtSlot()
+    def make_drone_objects(self):
+
+        self.controllers = []
+        try:
+            kp = float(self.kp_tb.text())
+            ki = float(self.ki_tb.text())
+            kd = float(self.kd_tb.text())
+        except Exception:
+            kp, ki, kd = 0.2, 0.05, 0.05 
+
+        # KEEP IN MIND:
+        # 1) drone placement is important
+        # 2) flag number is important
+        # 3) obtaining new flag points once the "land condition" has been met will
+        #    need to be implemented
+        
+        try:
+            drones = []
+            for ind, ip in enumerate(drone_ips): 
+                drone = Tello(ip, retry_count=1)
+                drone.connect()
+                drones.append(drone)
+                des = self.des_points.pop()
+                self.controllers.append(PidDroneControl(drone, des, ind, kp, ki, kd))
+            self.swarm = TelloSwarm(drones)
+        except Exception as e:
+            print(e)
+
+        print(self.controllers)
 
     @pyqtSlot()
     def drone_disconnect(self):
@@ -214,6 +344,9 @@ class App(QWidget):
     
 if __name__=="__main__":
     Mod = Model()
+    drone_ips = ['192.168.1.100', '192.168.1.200']
+
+
     app = QApplication(sys.argv)
     a = App()
     a.show()
