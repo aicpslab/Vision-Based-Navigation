@@ -39,7 +39,7 @@ class Model:
     # How confident does the model need to be to display any bouding box?
     MIN_SCORE_THRESH = .70
     # Camera Stuff
-    cam = Camera(1)
+    cam = Camera(0)
     imwidth = int(cam.cam.get(cv2.CAP_PROP_FRAME_WIDTH))
     imheight = int(cam.cam.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
@@ -208,7 +208,7 @@ class Model:
             img = cv2.putText(img, str(fps), (5, 50), dc.font, dc.font_scale, dc.light_purple, dc.font_thickness, cv2.LINE_AA) 
             self.thread_img = img
     
-    def baisc_detection(self):
+    def basic_detection(self):
         """ Same as basic_detection_thread but not for use with a thread. """
         fps = self.cv_fps_calc.get()
         self.update_detections()
