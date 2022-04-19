@@ -232,7 +232,7 @@ class UI_Swarm_Mode(QMainWindow):
         self.pushButton_program_start.clicked.connect(self.clicked_program_start)
         self.pushButton_create_pid.clicked.connect(self.clicked_create_pid)
         self.pushButton_emergency_stop.clicked.connect(self.clicked_emergency_stop)
-        self.pushButton_update_flags.clicked.connect(self.clicked_emergency_stop)
+        self.pushButton_update_flags.clicked.connect(self.clicked_update_flags)
         self.pushButton_drone_connect.clicked.connect(self.clicked_drone_connect) 
         self.pushButton_drone_disconnect.clicked.connect(self.clicked_drone_disconnect) 
         self.pushButton_load_presets.clicked.connect(self.clicked_load_presets) 
@@ -293,11 +293,15 @@ class UI_Swarm_Mode(QMainWindow):
         except Exception as e:
             print(e)
         
-        self.textEdit_controllers_info.setPlainText(f"{self.controllers}")
-        self.textEdit_drone_info.setPlainText(f"{self.drones}\n {self.swarm}")
+        #self.textEdit_controllers_info.setPlainText(f"{self.controllers}")
+        #self.textEdit_drone_info.setPlainText(f"{self.drones}\n {self.swarm}")
 
     def clicked_emergency_stop(self):
-        self.swarm.land()
+        try:
+            self.program_thread._run_flag = False
+            self.swarm.land()
+        except Exception as e:
+            print(e)
 
     def clicked_update_flags(self):
         if "no_model" not in sys.argv:
@@ -311,7 +315,10 @@ class UI_Swarm_Mode(QMainWindow):
         pass
 
     def clicked_drone_disconnect(self):
-        pass
+        for drone in self.drones:
+            drone.end()
+        
+        self.program_thread._run_flag = False
 
     def clicked_load_presets(self):
         self.lineEdit_x_kp.setText("0.20")

@@ -37,9 +37,9 @@ class Model:
     # How many boxes do we expect?
     MAX_BOXES = 6
     # How confident does the model need to be to display any bouding box?
-    MIN_SCORE_THRESH = .70
+    MIN_SCORE_THRESH = .65
     # Camera Stuff
-    cam = Camera(0)
+    cam = Camera(1)
     imwidth = int(cam.cam.get(cv2.CAP_PROP_FRAME_WIDTH))
     imheight = int(cam.cam.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
@@ -214,7 +214,7 @@ class Model:
         self.update_detections()
         self.update_centers()
         img = self.draw_bounding_boxes(self.cam.img)
-        img = ID.draw_histories(img, 10)
+        #img = ID.draw_histories(img, 10)
         img = ID.draw_id_nums(img)
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
