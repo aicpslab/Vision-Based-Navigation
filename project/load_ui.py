@@ -1,14 +1,15 @@
-from PyQt5.QtWidgets import QMainWindow, QApplication, QLabel, QPushButton, QLineEdit, QDialog, QAction, QMenu, QMenuBar
+from PyQt5.QtWidgets import QMainWindow, QApplication, QLabel, QPushButton, QLineEdit, QDialog, QAction, QMenu, QMenuBar, QTextEdit
 from PyQt5 import uic, QtGui
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt, QThread
 import numpy as np 
 import sys
 import cv2
-from djitellopy import Tello
+from djitellopy import Tello, TelloSwarm
 from PidDroneControl import PidDroneControl
 from point import Point
 from model import Model
+import concurrent.futures
 
 class UI_Single_Mode(QMainWindow):
 
@@ -86,7 +87,7 @@ class UI_Single_Mode(QMainWindow):
 
     def clicked_program_start(self):
         try:
-            self.program_thread = ProgramThread(self.drone.self, self.pid_controller, self.des_points)
+            self.program_thread = SingleProgramThread(self.drone.self, self.pid_controller, self.des_points)
             self.program_thread.start()
         except Exception as e:
             print(e)
@@ -186,6 +187,10 @@ class UI_Swarm_Mode(QMainWindow):
         super(UI_Swarm_Mode, self).__init__(parent)
         uic.loadUi(ui_swarm_path, self)
 
+        self.stream_thread = StreamThread()
+        self.stream_thread.update_img_signal.connect(self.update_image)
+        self.stream_thread.stream_off_signal.connect(self.stream_off)
+
         self.load_widgets()
         self.connect_buttons()
 
@@ -196,7 +201,6 @@ class UI_Swarm_Mode(QMainWindow):
         # Labels 
         self.label_image = self.findChild(QLabel, "label_image")
         self.label_flags = self.findChild(QLabel, "label_flags")
-        self.label_controllers_info = self.findChild(QLabel, "label_controllers_info")
 
         # Buttons 
         self.pushButton_video_stream = self.findChild(QPushButton, "pushButton_video_stream")
@@ -209,21 +213,113 @@ class UI_Swarm_Mode(QMainWindow):
         self.pushButton_load_presets = self.findChild(QPushButton, "pushButton_load_presets")
 
         # Line Edit's 
-        self.lineEdit_drone_ip = self.findChild(QLineEdit, "lineEdit_drone_ip")
         self.lineEdit_x_kp = self.findChild(QLineEdit, "lineEdit_x_kp")
         self.lineEdit_x_ki = self.findChild(QLineEdit, "lineEdit_x_ki")
         self.lineEdit_x_kd = self.findChild(QLineEdit, "lineEdit_x_kd")
         self.lineEdit_y_kp = self.findChild(QLineEdit, "lineEdit_y_kp")
         self.lineEdit_y_ki = self.findChild(QLineEdit, "lineEdit_y_ki")
         self.lineEdit_y_kd = self.findChild(QLineEdit, "lineEdit_y_kd")
-        self.lineEdit_x_set = self.findChild(QLineEdit, "lineEdit_x_set")
-        self.lineEdit_y_set = self.findChild(QLineEdit, "lineEdit_y_set")
-
-
+        
+        # Text Edits 
+        self.textEdit_drone_info = self.findChild(QTextEdit, "textEdit_drone_info")
+        self.textEdit_controllers_info = self.findChild(QTextEdit, "textEdit_controllers_info")
 
     def connect_buttons(self):
         
         self.action_single.triggered.connect(self.clicked_view_action_swarm)
+
+        self.pushButton_video_stream.clicked.connect(self.stream_thread.clicked_video_stream)
+        self.pushButton_program_start.clicked.connect(self.clicked_program_start)
+        self.pushButton_create_pid.clicked.connect(self.clicked_create_pid)
+        self.pushButton_emergency_stop.clicked.connect(self.clicked_emergency_stop)
+        self.pushButton_update_flags.clicked.connect(self.clicked_emergency_stop)
+        self.pushButton_drone_connect.clicked.connect(self.clicked_drone_connect) 
+        self.pushButton_drone_disconnect.clicked.connect(self.clicked_drone_disconnect) 
+        self.pushButton_load_presets.clicked.connect(self.clicked_load_presets) 
+
+    @pyqtSlot(np.ndarray)
+    def update_image(self, cv_img):
+        rgb_img = cv2.cvtColor(cv_img, cv2.COLOR_BGR2RGB)
+        h, w, ch = rgb_img.shape
+        bytes_per_line = ch * w
+        qt_format = QtGui.QImage(rgb_img.data, w, h, bytes_per_line, QtGui.QImage.Format_RGB888)
+        qt_image = qt_format.scaled(640, 480, Qt.KeepAspectRatio)
+        self.label_image.setPixmap(QPixmap.fromImage(qt_image))
+    
+    @pyqtSlot()
+    def stream_off(self):
+        self.label_image.setPixmap(self.stream_thread.no_stream_img)
+
+    def clicked_program_start(self):
+        try:
+            self.program_thread = SwarmProgramThread(self.swarm, self.controllers, self.des_points)
+            self.program_thread.start()
+        except Exception as e:
+            print(e)
+
+    def clicked_create_pid(self):
+
+        self.controllers = []
+        try:
+            x_kp = float(self.lineEdit_x_kp.text())
+            x_ki = float(self.lineEdit_x_ki.text())
+            x_kd = float(self.lineEdit_x_kd.text())
+            y_kp = float(self.lineEdit_y_kp.text())
+            y_ki = float(self.lineEdit_y_ki.text())
+            y_kd = float(self.lineEdit_y_kd.text())
+        except Exception as e:
+            print(e)
+            print("Using Default vaules due to error...")
+            x_kp = 0.20
+            x_ki = 0.05
+            x_kd = 0.05
+            y_kp = 0.20
+            y_ki = 0.05
+            y_kd = 0.05
+        
+        try:
+            self.drones = []
+            for ind, ip in enumerate(drone_ips):
+                drone = Tello(ip, retry_count=1)
+                drone.connect()
+                self.drones.append(drone)
+                des = self.des_points.pop()
+
+                controller = PidDroneControl(drone, des, ind, x_kp, x_ki, x_kd)
+                controller.pidx.tunings = (x_kp, x_ki, x_kd)
+                controller.pidy.tunings = (y_kp, y_ki, y_kd)
+                self.controllers.append(controller)
+            self.swarm = TelloSwarm(self.drones)
+        except Exception as e:
+            print(e)
+        
+        self.textEdit_controllers_info.setPlainText(f"{self.controllers}")
+        self.textEdit_drone_info.setPlainText(f"{self.drones}\n {self.swarm}")
+
+    def clicked_emergency_stop(self):
+        self.swarm.land()
+
+    def clicked_update_flags(self):
+        if "no_model" not in sys.argv:
+            self.label_flags.setText(str(Mod.flag_centers))
+            self.des_points = Mod.flag_centers
+        else:
+            self.des_points = [Point(320,240)]
+            self.label_flags.setText(str(self.des_points))
+
+    def clicked_drone_connect(self):
+        pass
+
+    def clicked_drone_disconnect(self):
+        pass
+
+    def clicked_load_presets(self):
+        self.lineEdit_x_kp.setText("0.20")
+        self.lineEdit_x_ki.setText("0.05")
+        self.lineEdit_x_kd.setText("0.05")
+        self.lineEdit_y_kp.setText("0.20")
+        self.lineEdit_y_ki.setText("0.05")
+        self.lineEdit_y_kd.setText("0.05")
 
     def clicked_view_action_swarm(self):
         self.parent().show()
@@ -286,7 +382,7 @@ class Drone():
         self.self.end()
         print(f'Ended Connection to {self.ip}')
 
-class ProgramThread(QThread):
+class SingleProgramThread(QThread):
 
     def __init__(self, drone:Tello, controller: PidDroneControl, des_points):
         super().__init__()
@@ -314,6 +410,29 @@ class ProgramThread(QThread):
             self._run_flag = False
             print(e)
 
+class SwarmProgramThread(QThread):
+    def __init__(self, swarm, controllers, des_points):
+        super().__init__()
+        self._run_flag = False
+        self.controllers = controllers
+        self.des_points = des_points
+        self.swarm = swarm
+    
+    def run(self):
+        self._run_flag = True
+        
+        self.swarm.takeoff()
+        with concurrent.futures.ThreadPoolExecutor() as Executor:
+            while self._run_flag:
+                for controller in self.controllers:
+                    if not controller.new_point:
+                        Executor.submit(controller.update_velocity) 
+                    else:
+                        if self.des_points:
+                            des = self.des_points.pop()
+                            controller.update_setpoints(des)
+                        else:
+                            controller.drone.land()
 
 # Initialize the app
 if __name__ == "__main__":

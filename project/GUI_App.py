@@ -88,8 +88,6 @@ class ControllerThread(QThread):
                             controller.update_setpoints(des)
                         else:
                             controller.drone.land()
-                        
-        
 
 class ControlDrone(QThread):
 
