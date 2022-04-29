@@ -428,25 +428,25 @@ class SwarmProgramThread(QThread):
         self._run_flag = True
         
         self.swarm.takeoff()
-        with concurrent.futures.ThreadPoolExecutor() as Executor:
-            while self._run_flag:
-                for controller in self.controllers:
-                    if not controller.new_point:
-                        Executor.submit(controller.update_velocity) 
+
+        while self._run_flag:
+            for controller in self.controllers:
+                if not controller.new_point:
+                    controller.update_velocity()
+                else:
+                    if self.des_points:
+                        des = self.des_points.pop()
+                        controller.update_setpoints(des)
                     else:
-                        if self.des_points:
-                            des = self.des_points.pop()
-                            controller.update_setpoints(des)
-                        else:
-                            controller.drone.land()
-                            self.controllers.remove(controller)
-                if self.controllers == []:
-                    self._run_flag = False
+                        controller.drone.land()
+                        self.controllers.remove(controller)
+            if self.controllers == []:
+                self._run_flag = False
 
 # Initialize the app
 if __name__ == "__main__":
 
-    drone_ips = ['192.168.1.100']
+    drone_ips = ['192.168.1.100', '192.168.1.200']
 
     app = QApplication(sys.argv)
 

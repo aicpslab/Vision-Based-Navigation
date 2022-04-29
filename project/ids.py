@@ -147,8 +147,8 @@ class ID:
 
     # Instance Methods
     def __post_init__(self):
-        self.position_history = deque([self.position], maxlen=30)
-        self. velocityTracking = velocityTracker()
+        self.position_history = deque([self.position], maxlen=5) #maxlen was 30
+        self.velocityTracking = velocityTracker()
     
     def appendPosition(self, position:Point):
         self.position_history.appendleft(position)

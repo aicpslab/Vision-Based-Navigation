@@ -39,7 +39,7 @@ class Model:
     # How confident does the model need to be to display any bouding box?
     MIN_SCORE_THRESH = .65
     # Camera Stuff
-    cam = Camera(1)
+    cam = Camera(0)
     imwidth = int(cam.cam.get(cv2.CAP_PROP_FRAME_WIDTH))
     imheight = int(cam.cam.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
@@ -213,10 +213,9 @@ class Model:
         fps = self.cv_fps_calc.get()
         self.update_detections()
         self.update_centers()
-        #img = self.draw_bounding_boxes(self.cam.img)
+        img = self.draw_bounding_boxes(self.cam.img)
         #img = ID.draw_histories(img, 10)
-        #img = ID.draw_id_nums(img)
-        img = ID.draw_id_nums(self.cam.img)
+        img = ID.draw_id_nums(img)
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
         img = cv2.putText(img, str(fps), (5, 50), dc.font, dc.font_scale, dc.light_purple, dc.font_thickness, cv2.LINE_AA) 
