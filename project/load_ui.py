@@ -10,6 +10,7 @@ from PidDroneControl import PidDroneControl
 from point import Point
 from model import Model
 import concurrent.futures
+from cvfpscalc import CvFpsCalc
 
 class UI_Single_Mode(QMainWindow):
 
@@ -317,8 +318,6 @@ class UI_Swarm_Mode(QMainWindow):
     def clicked_drone_disconnect(self):
         for drone in self.drones:
             drone.end()
-        
-        self.program_thread._run_flag = False
 
     def clicked_load_presets(self):
         self.lineEdit_x_kp.setText("0.20")
@@ -372,7 +371,7 @@ class Drone():
 
     def __init__(self, ip:str):
         self.ip = ip
-        self.self = Tello(self.ip, retry_count = 0)
+        self.self = Tello(self.ip, retry_count = 1)
         self.connect()
     
     def __repr__(self):
@@ -404,15 +403,15 @@ class SingleProgramThread(QThread):
         try:
             self.drone.takeoff()
             while self._run_flag:
-                if not self.controller.new_point:
-                    self.controller.update_velocity()
-                else:
+                if self.controller.new_point:
                     if self.des_points:
                         des = self.des_points.pop()
                         self.controller.update_setpoints(des)
                     else:
                         self.drone.land()
                         self._run_flag = False
+                else:
+                    self.controller.update_velocity()
         except Exception as e:
             self._run_flag = False
             print(e)
@@ -440,18 +439,21 @@ class SwarmProgramThread(QThread):
                             controller.update_setpoints(des)
                         else:
                             controller.drone.land()
+                            self.controllers.remove(controller)
+                if self.controllers == []:
+                    self._run_flag = False
 
 # Initialize the app
 if __name__ == "__main__":
 
-    drone_ips = ['192.168.1.100', '192.168.1.200']
+    drone_ips = ['192.168.1.100']
 
     app = QApplication(sys.argv)
 
     if "no_model" in sys.argv:
         cam = cv2.VideoCapture(0)
     else:
-        Mod = Model()
+        Mod = Model(low_memory=True)
 
     ui_single_path = "./resources/gui_views/single_drone.ui"
     ui_swarm_path = "./resources/gui_views/swarm_drone.ui"

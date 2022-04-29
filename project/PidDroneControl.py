@@ -10,7 +10,7 @@ class PidDroneControl:
 
     def __init__(self, drone_object:Tello, point:Point, instance_num, kp, ki, kd):
         self.drone = drone_object
-        self.time_limit = 2000
+        self.time_limit = 10000
         # Set point is relative to the camera pixel.
         self.range = 15
         x_set = point.x
