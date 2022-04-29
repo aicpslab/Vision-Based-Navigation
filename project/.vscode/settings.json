@@ -1,5 +1,5 @@
 {
-    "python.defaultInterpreterPath": "C:\\Users\\ARVRLab\\anaconda3\\envs\\Drone_Nav",
-    "python.terminal.activateEnvironment": false,
+    "python.defaultInterpreterPath": "C:\\Users\\wesle\\anaconda3\\envs\\drone\\python.exe",
+    "python.terminal.activateEnvironment": true,
     "terminal.integrated.shell.windows": "C:\\Windows\\System32\\cmd.exe",
-}
+} 

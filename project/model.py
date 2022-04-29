@@ -39,12 +39,12 @@ class Model:
     # How confident does the model need to be to display any bouding box?
     MIN_SCORE_THRESH = .65
     # Camera Stuff
-    cam = Camera(0)
-    imwidth = int(cam.cam.get(cv2.CAP_PROP_FRAME_WIDTH))
-    imheight = int(cam.cam.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-
-    def __init__(self, low_memory : bool = False):
+    def __init__(self, cam_index, low_memory : bool = False):
+        
+        self.cam = Camera(cam_index)
+        self.imwidth = int(self.cam.cam.get(cv2.CAP_PROP_FRAME_WIDTH))
+        self.imheight = int(self.cam.cam.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
         # Suppress TensorFlow logging
         tf.get_logger().setLevel('ERROR')

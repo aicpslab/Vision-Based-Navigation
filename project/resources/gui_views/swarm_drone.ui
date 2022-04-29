@@ -304,7 +304,7 @@
      </font>
     </property>
     <property name="text">
-     <string>Verify Flag Points:</string>
+     <string>[]</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_video_stream">
@@ -364,6 +364,29 @@
     </property>
     <property name="text">
      <string>Controllers Info</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_show_info">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>620</y>
+      <width>341</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Show Drone and Controller Info</string>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="textEdit_navigation_info">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>700</y>
+      <width>341</width>
+      <height>51</height>
+     </rect>
     </property>
    </widget>
   </widget>

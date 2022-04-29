@@ -51,7 +51,6 @@ class PidDroneControl:
             self.new_point = True
             self.wait_time = 0
             
-
     def update_setpoints(self,setpoint):
 
         # Update the Setpoint and clear the history of the PID.

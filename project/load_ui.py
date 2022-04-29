@@ -9,7 +9,6 @@ from djitellopy import Tello, TelloSwarm
 from PidDroneControl import PidDroneControl
 from point import Point
 from model import Model
-import concurrent.futures
 from cvfpscalc import CvFpsCalc
 
 class UI_Single_Mode(QMainWindow):
@@ -212,6 +211,7 @@ class UI_Swarm_Mode(QMainWindow):
         self.pushButton_drone_connect = self.findChild(QPushButton, "pushButton_drone_connect")
         self.pushButton_drone_disconnect = self.findChild(QPushButton, "pushButton_drone_disconnect")
         self.pushButton_load_presets = self.findChild(QPushButton, "pushButton_load_presets")
+        self.pushButton_show_info = self.findChild(QPushButton, "pushButton_show_info")
 
         # Line Edit's 
         self.lineEdit_x_kp = self.findChild(QLineEdit, "lineEdit_x_kp")
@@ -224,6 +224,7 @@ class UI_Swarm_Mode(QMainWindow):
         # Text Edits 
         self.textEdit_drone_info = self.findChild(QTextEdit, "textEdit_drone_info")
         self.textEdit_controllers_info = self.findChild(QTextEdit, "textEdit_controllers_info")
+        self.textEdit_navigation_info = self.findChild(QTextEdit, "textEdit_navigation_info")
 
     def connect_buttons(self):
         
@@ -237,6 +238,11 @@ class UI_Swarm_Mode(QMainWindow):
         self.pushButton_drone_connect.clicked.connect(self.clicked_drone_connect) 
         self.pushButton_drone_disconnect.clicked.connect(self.clicked_drone_disconnect) 
         self.pushButton_load_presets.clicked.connect(self.clicked_load_presets) 
+        self.pushButton_show_info.clicked.connect(self.clicked_show_info)
+
+    @pyqtSlot(str)
+    def update_navigation_text(self, nav_str):
+        self.textEdit_navigation_info.setPlainText(nav_str)
 
     @pyqtSlot(np.ndarray)
     def update_image(self, cv_img):
@@ -254,6 +260,7 @@ class UI_Swarm_Mode(QMainWindow):
     def clicked_program_start(self):
         try:
             self.program_thread = SwarmProgramThread(self.swarm, self.controllers, self.des_points)
+            self.program_thread.update_navigation_signal.connect(self.update_navigation_text)
             self.program_thread.start()
         except Exception as e:
             print(e)
@@ -279,18 +286,15 @@ class UI_Swarm_Mode(QMainWindow):
             y_kd = 0.05
         
         try:
-            self.drones = []
             for ind, ip in enumerate(drone_ips):
-                drone = Tello(ip, retry_count=1)
-                drone.connect()
-                self.drones.append(drone)
+                drone = self.drones[ind]
                 des = self.des_points.pop()
-
                 controller = PidDroneControl(drone, des, ind, x_kp, x_ki, x_kd)
                 controller.pidx.tunings = (x_kp, x_ki, x_kd)
                 controller.pidy.tunings = (y_kp, y_ki, y_kd)
                 self.controllers.append(controller)
-            self.swarm = TelloSwarm(self.drones)
+            
+            print(self.controllers)
         except Exception as e:
             print(e)
         
@@ -313,11 +317,27 @@ class UI_Swarm_Mode(QMainWindow):
             self.label_flags.setText(str(self.des_points))
 
     def clicked_drone_connect(self):
-        pass
+        try:
+            self.drones=[]
+
+            for ip in drone_ips:
+                drone = Tello(ip, retry_count=1)
+                drone.connect()
+                self.drones.append(drone)
+
+            self.swarm = TelloSwarm(self.drones)
+
+        except Exception as e:
+            print(e)
 
     def clicked_drone_disconnect(self):
-        for drone in self.drones:
-            drone.end()
+        try:
+            for drone in self.drones:
+                drone.end()
+            self.drones = []
+            self.swarm = None
+        except Exception as e:
+            print(e)
 
     def clicked_load_presets(self):
         self.lineEdit_x_kp.setText("0.20")
@@ -330,6 +350,21 @@ class UI_Swarm_Mode(QMainWindow):
     def clicked_view_action_swarm(self):
         self.parent().show()
         self.close()
+    
+    def clicked_show_info(self):
+        try:
+            self.textEdit_drone_info.setPlainText(f"{self.drones}")
+        except Exception as e:
+            print(e)
+        try:
+            string = ""
+            for ind, controller in enumerate(self.controllers):
+                string += f"Controller of index {ind}:\n"
+                string += f"Navigating to: ({controller.pidx.setpoint}, {controller.pidy.setpoint})\n"
+                string += f"Tunings: {controller.pidx.tunings}\n"
+            self.textEdit_controllers_info.setPlainText(f"{string}")
+        except Exception as e:
+            print(e)
 
 class StreamThread(QThread):
     update_img_signal = pyqtSignal(np.ndarray)
@@ -417,6 +452,8 @@ class SingleProgramThread(QThread):
             print(e)
 
 class SwarmProgramThread(QThread):
+    update_navigation_signal = pyqtSignal(str)
+
     def __init__(self, swarm, controllers, des_points):
         super().__init__()
         self._run_flag = False
@@ -426,7 +463,7 @@ class SwarmProgramThread(QThread):
     
     def run(self):
         self._run_flag = True
-        
+
         self.swarm.takeoff()
 
         while self._run_flag:
@@ -437,23 +474,32 @@ class SwarmProgramThread(QThread):
                     if self.des_points:
                         des = self.des_points.pop()
                         controller.update_setpoints(des)
+                        self.update_nav_string()
                     else:
                         controller.drone.land()
                         self.controllers.remove(controller)
             if self.controllers == []:
                 self._run_flag = False
 
+    def update_nav_string(self):
+        nav_string = ""
+        for ind, controller in enumerate(self.controllers):
+            nav_string += f"Controller {ind} is navigating to: {controller.setpoint}\n"
+
+        self.update_navigation_signal.emit(nav_string)
+
 # Initialize the app
 if __name__ == "__main__":
 
     drone_ips = ['192.168.1.100', '192.168.1.200']
+    cam_index = 1
 
     app = QApplication(sys.argv)
 
     if "no_model" in sys.argv:
         cam = cv2.VideoCapture(0)
     else:
-        Mod = Model(low_memory=True)
+        Mod = Model(cam_index, low_memory=True)
 
     ui_single_path = "./resources/gui_views/single_drone.ui"
     ui_swarm_path = "./resources/gui_views/swarm_drone.ui"
