@@ -13,6 +13,9 @@ class Point(Sequence):
         if key == 0: return self.x
         elif key == 1: return self.y
         else: raise IndexError()
+    
+    def __repr__(self):
+        return f"({self.x}, {self.y})"
         
     def __len__(self):
         return 2

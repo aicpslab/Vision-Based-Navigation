@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1052</width>
-    <height>652</height>
+    <width>1036</width>
+    <height>666</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -48,13 +48,26 @@
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="QLabel" name="label_drone_header">
+   <widget class="QPushButton" name="pushButton_load_presets">
     <property name="geometry">
      <rect>
       <x>680</x>
-      <y>70</y>
-      <width>211</width>
-      <height>16</height>
+      <y>20</y>
+      <width>330</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Load Presets</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_drone_header">
+    <property name="geometry">
+     <rect>
+      <x>681</x>
+      <y>65</y>
+      <width>331</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="font">
@@ -66,52 +79,44 @@
      <string>Create Drone Object: </string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="lineEdit_drone_ip">
+   <widget class="QLabel" name="label_flags">
+    <property name="geometry">
+     <rect>
+      <x>681</x>
+      <y>180</y>
+      <width>331</width>
+      <height>50</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;[]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_update_flags">
     <property name="geometry">
      <rect>
       <x>680</x>
-      <y>100</y>
-      <width>121</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="placeholderText">
-     <string>Drone IP</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_drone_connect">
-    <property name="geometry">
-     <rect>
-      <x>820</x>
-      <y>100</y>
-      <width>91</width>
-      <height>31</height>
+      <y>240</y>
+      <width>330</width>
+      <height>30</height>
      </rect>
     </property>
     <property name="text">
-     <string>Connect</string>
+     <string>Update Flags</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_drone_disconnect">
+   <widget class="QLabel" name="label_flag_header">
     <property name="geometry">
      <rect>
-      <x>930</x>
-      <y>100</y>
-      <width>91</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Disconnect</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_pid_header">
-    <property name="geometry">
-     <rect>
-      <x>680</x>
-      <y>300</y>
-      <width>211</width>
-      <height>16</height>
+      <x>681</x>
+      <y>150</y>
+      <width>331</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="font">
@@ -120,64 +125,29 @@
      </font>
     </property>
     <property name="text">
-     <string>Create PID Controller:</string>
+     <string>Verify Flag Points:</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="lineEdit_x_kp">
+   <widget class="QPushButton" name="pushButton_create_pid">
     <property name="geometry">
      <rect>
       <x>680</x>
-      <y>330</y>
-      <width>131</width>
-      <height>31</height>
+      <y>588</y>
+      <width>320</width>
+      <height>30</height>
      </rect>
     </property>
     <property name="text">
-     <string/>
-    </property>
-    <property name="placeholderText">
-     <string>x kp</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="lineEdit_x_ki">
-    <property name="geometry">
-     <rect>
-      <x>680</x>
-      <y>370</y>
-      <width>131</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="placeholderText">
-     <string>x ki</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="lineEdit_x_kd">
-    <property name="geometry">
-     <rect>
-      <x>680</x>
-      <y>410</y>
-      <width>131</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="placeholderText">
-     <string>x kd</string>
+     <string>Create PID Controller</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_pid_optional">
     <property name="geometry">
      <rect>
-      <x>680</x>
-      <y>450</y>
-      <width>71</width>
-      <height>16</height>
+      <x>681</x>
+      <y>511</y>
+      <width>73</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="font">
@@ -189,13 +159,13 @@
      <string>Optional: </string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_flag_header">
+   <widget class="QLabel" name="label_pid_header">
     <property name="geometry">
      <rect>
-      <x>680</x>
-      <y>170</y>
-      <width>211</width>
-      <height>16</height>
+      <x>681</x>
+      <y>396</y>
+      <width>321</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="font">
@@ -204,79 +174,97 @@
      </font>
     </property>
     <property name="text">
-     <string>Verify Flag Points:</string>
+     <string>Create PID Controller:</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_flags">
+   <widget class="QPushButton" name="pushButton_emergency_stop">
     <property name="geometry">
      <rect>
-      <x>680</x>
-      <y>200</y>
-      <width>341</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>10</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>Verify Flag Points:</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_update_flags">
-    <property name="geometry">
-     <rect>
-      <x>680</x>
-      <y>240</y>
-      <width>341</width>
-      <height>31</height>
+      <x>21</x>
+      <y>588</y>
+      <width>641</width>
+      <height>30</height>
      </rect>
     </property>
     <property name="text">
-     <string>Update Flags</string>
+     <string>Emergency Stop</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="lineEdit_x_set">
+   <widget class="QPushButton" name="pushButton_program_start">
     <property name="geometry">
      <rect>
-      <x>680</x>
-      <y>470</y>
-      <width>131</width>
-      <height>31</height>
+      <x>21</x>
+      <y>551</y>
+      <width>641</width>
+      <height>30</height>
      </rect>
     </property>
     <property name="text">
-     <string/>
+     <string>Start Program with Drone and PID Controller</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_video_stream">
+    <property name="geometry">
+     <rect>
+      <x>21</x>
+      <y>514</y>
+      <width>641</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Start/Stop Stream</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_drone_ip">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>100</y>
+      <width>130</width>
+      <height>30</height>
+     </rect>
     </property>
     <property name="placeholderText">
-     <string>X Set Point</string>
+     <string>Drone IP</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="lineEdit_y_set">
+   <widget class="QPushButton" name="pushButton_drone_connect">
     <property name="geometry">
      <rect>
-      <x>890</x>
-      <y>470</y>
-      <width>131</width>
-      <height>31</height>
+      <x>820</x>
+      <y>100</y>
+      <width>90</width>
+      <height>30</height>
      </rect>
     </property>
     <property name="text">
-     <string/>
+     <string>Connect</string>
     </property>
-    <property name="placeholderText">
-     <string>Y Set Point</string>
+   </widget>
+   <widget class="QPushButton" name="pushButton_drone_disconnect">
+    <property name="geometry">
+     <rect>
+      <x>920</x>
+      <y>100</y>
+      <width>90</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Disconnect</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="lineEdit_y_kp">
     <property name="geometry">
      <rect>
-      <x>890</x>
-      <y>330</y>
-      <width>131</width>
-      <height>31</height>
+      <x>870</x>
+      <y>428</y>
+      <width>130</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
@@ -286,29 +274,13 @@
      <string>y kp</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="lineEdit_y_ki">
-    <property name="geometry">
-     <rect>
-      <x>890</x>
-      <y>370</y>
-      <width>131</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="placeholderText">
-     <string>y ki</string>
-    </property>
-   </widget>
    <widget class="QLineEdit" name="lineEdit_y_kd">
     <property name="geometry">
      <rect>
-      <x>890</x>
-      <y>410</y>
-      <width>131</width>
-      <height>31</height>
+      <x>870</x>
+      <y>455</y>
+      <width>130</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
@@ -318,69 +290,100 @@
      <string>y kd</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_video_stream">
+   <widget class="QLineEdit" name="lineEdit_y_ki">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>510</y>
-      <width>641</width>
-      <height>31</height>
+      <x>870</x>
+      <y>482</y>
+      <width>130</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
-     <string>Start/Stop Stream</string>
+     <string/>
+    </property>
+    <property name="placeholderText">
+     <string>y ki</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_create_pid">
+   <widget class="QLineEdit" name="lineEdit_x_kd">
     <property name="geometry">
      <rect>
       <x>680</x>
-      <y>510</y>
-      <width>341</width>
-      <height>31</height>
+      <y>482</y>
+      <width>130</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
-     <string>Create PID Controller</string>
+     <string/>
+    </property>
+    <property name="placeholderText">
+     <string>x kd</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_load_presets">
+   <widget class="QLineEdit" name="lineEdit_x_ki">
     <property name="geometry">
      <rect>
       <x>680</x>
-      <y>20</y>
-      <width>341</width>
-      <height>31</height>
+      <y>455</y>
+      <width>130</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
-     <string>Load Presets</string>
+     <string/>
+    </property>
+    <property name="placeholderText">
+     <string>x ki</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_program_start">
+   <widget class="QLineEdit" name="lineEdit_x_kp">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>680</x>
+      <y>428</y>
+      <width>130</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="placeholderText">
+     <string>x kp</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_y_set">
+    <property name="geometry">
+     <rect>
+      <x>870</x>
       <y>550</y>
-      <width>641</width>
-      <height>31</height>
+      <width>130</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
-     <string>Start Program with Drone and PID Controller</string>
+     <string/>
+    </property>
+    <property name="placeholderText">
+     <string>Y Set Point</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_emergency_stop">
+   <widget class="QLineEdit" name="lineEdit_x_set">
     <property name="geometry">
      <rect>
-      <x>680</x>
+      <x>679</x>
       <y>550</y>
-      <width>341</width>
-      <height>31</height>
+      <width>130</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
-     <string>Emergency Stop</string>
+     <string/>
+    </property>
+    <property name="placeholderText">
+     <string>X Set Point</string>
     </property>
    </widget>
   </widget>
@@ -389,7 +392,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1052</width>
+     <width>1036</width>
      <height>26</height>
     </rect>
    </property>
@@ -414,17 +417,17 @@
   <tabstop>pushButton_drone_disconnect</tabstop>
   <tabstop>pushButton_update_flags</tabstop>
   <tabstop>lineEdit_x_kp</tabstop>
-  <tabstop>lineEdit_x_ki</tabstop>
-  <tabstop>lineEdit_x_kd</tabstop>
   <tabstop>lineEdit_y_kp</tabstop>
-  <tabstop>lineEdit_y_ki</tabstop>
+  <tabstop>lineEdit_x_ki</tabstop>
   <tabstop>lineEdit_y_kd</tabstop>
+  <tabstop>lineEdit_x_kd</tabstop>
+  <tabstop>lineEdit_y_ki</tabstop>
   <tabstop>lineEdit_x_set</tabstop>
   <tabstop>lineEdit_y_set</tabstop>
   <tabstop>pushButton_create_pid</tabstop>
-  <tabstop>pushButton_video_stream</tabstop>
   <tabstop>pushButton_program_start</tabstop>
   <tabstop>pushButton_emergency_stop</tabstop>
+  <tabstop>pushButton_video_stream</tabstop>
  </tabstops>
  <resources/>
  <connections/>

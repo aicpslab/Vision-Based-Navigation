@@ -11,8 +11,9 @@ class PidDroneControl:
     def __init__(self, drone_object:Tello, point:Point, instance_num, kp, ki, kd):
         self.drone = drone_object
         self.time_limit = 10000
+        self.d2d_range = 20
         # Set point is relative to the camera pixel.
-        self.range = 15
+        self.range = 50
         x_set = point.x
         y_set = point.y
         self.wait_time = 0
@@ -42,14 +43,14 @@ class PidDroneControl:
         self.d2d = position.dist(self.destination)
         
         #If the distance is close enough, and the time is under still, hold the drone still
-        if self.d2d < 16 and self.wait_time < self.time_limit:
-            self.drone.send_rc_control(0, 0, self.u_d_vel, self.yaw_vel)
+        if self.d2d < self.d2d_range and self.wait_time < self.time_limit:
+            #self.drone.send_rc_control(0, 0, self.u_d_vel, self.yaw_vel)
+            self.drone.send_rc_control(int(self.l_r_vel), int(self.f_b_vel), self.u_d_vel, self.yaw_vel)
             self.wait_time += 1
         elif self.wait_time < self.time_limit:
             self.drone.send_rc_control(int(self.l_r_vel), int(self.f_b_vel), self.u_d_vel, self.yaw_vel)
         else:
             self.new_point = True
-            self.wait_time = 0
             
     def update_setpoints(self,setpoint):
 

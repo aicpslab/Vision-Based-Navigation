@@ -17,6 +17,7 @@ class UI_Single_Mode(QMainWindow):
         super(UI_Single_Mode, self).__init__()
 
         uic.loadUi(ui_single_path, self)
+        self.setFixedSize(1036, 666)
 
         # Create the Video Stream Thread
         self.stream_thread = StreamThread()
@@ -34,6 +35,7 @@ class UI_Single_Mode(QMainWindow):
         # Labels 
         self.label_image = self.findChild(QLabel, "label_image")
         self.label_flags = self.findChild(QLabel, "label_flags")
+        self.label_flags.setWordWrap(True)
 
         # Buttons 
         self.pushButton_video_stream = self.findChild(QPushButton, "pushButton_video_stream")
@@ -201,6 +203,7 @@ class UI_Swarm_Mode(QMainWindow):
         # Labels 
         self.label_image = self.findChild(QLabel, "label_image")
         self.label_flags = self.findChild(QLabel, "label_flags")
+        self.label_flags.setWordWrap(True)
 
         # Buttons 
         self.pushButton_video_stream = self.findChild(QPushButton, "pushButton_video_stream")
@@ -361,7 +364,8 @@ class UI_Swarm_Mode(QMainWindow):
             for ind, controller in enumerate(self.controllers):
                 string += f"Controller of index {ind}:\n"
                 string += f"Navigating to: ({controller.pidx.setpoint}, {controller.pidy.setpoint})\n"
-                string += f"Tunings: {controller.pidx.tunings}\n"
+                string += f"X Tunings: {controller.pidx.tunings}"
+                string += f"Y Tunings: {controller.pidy.tunings}\n"
             self.textEdit_controllers_info.setPlainText(f"{string}")
         except Exception as e:
             print(e)
@@ -447,6 +451,8 @@ class SingleProgramThread(QThread):
                         self._run_flag = False
                 else:
                     self.controller.update_velocity()
+                    print(self.controller.d2d)
+                    print(self.controller.wait_time)
         except Exception as e:
             self._run_flag = False
             print(e)

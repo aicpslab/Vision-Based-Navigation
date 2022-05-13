@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1065</width>
-    <height>858</height>
+    <height>804</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,9 +18,9 @@
     <property name="geometry">
      <rect>
       <x>680</x>
-      <y>240</y>
-      <width>341</width>
-      <height>31</height>
+      <y>270</y>
+      <width>330</width>
+      <height>30</height>
      </rect>
     </property>
     <property name="text">
@@ -31,9 +31,9 @@
     <property name="geometry">
      <rect>
       <x>680</x>
-      <y>410</y>
-      <width>131</width>
-      <height>31</height>
+      <y>420</y>
+      <width>130</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
@@ -47,9 +47,9 @@
     <property name="geometry">
      <rect>
       <x>680</x>
-      <y>510</y>
+      <y>450</y>
       <width>341</width>
-      <height>31</height>
+      <height>30</height>
      </rect>
     </property>
     <property name="text">
@@ -62,7 +62,7 @@
       <x>20</x>
       <y>550</y>
       <width>641</width>
-      <height>31</height>
+      <height>30</height>
      </rect>
     </property>
     <property name="text">
@@ -72,10 +72,10 @@
    <widget class="QLineEdit" name="lineEdit_y_ki">
     <property name="geometry">
      <rect>
-      <x>890</x>
-      <y>370</y>
-      <width>131</width>
-      <height>31</height>
+      <x>880</x>
+      <y>390</y>
+      <width>130</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
@@ -91,7 +91,7 @@
       <x>680</x>
       <y>100</y>
       <width>91</width>
-      <height>31</height>
+      <height>30</height>
      </rect>
     </property>
     <property name="text">
@@ -104,7 +104,7 @@
       <x>790</x>
       <y>100</y>
       <width>91</width>
-      <height>31</height>
+      <height>30</height>
      </rect>
     </property>
     <property name="text">
@@ -114,10 +114,10 @@
    <widget class="QLineEdit" name="lineEdit_y_kd">
     <property name="geometry">
      <rect>
-      <x>890</x>
-      <y>410</y>
-      <width>131</width>
-      <height>31</height>
+      <x>880</x>
+      <y>420</y>
+      <width>130</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
@@ -133,7 +133,7 @@
       <x>680</x>
       <y>70</y>
       <width>211</width>
-      <height>16</height>
+      <height>20</height>
      </rect>
     </property>
     <property name="font">
@@ -151,7 +151,7 @@
       <x>680</x>
       <y>550</y>
       <width>341</width>
-      <height>31</height>
+      <height>30</height>
      </rect>
     </property>
     <property name="text">
@@ -163,8 +163,8 @@
      <rect>
       <x>680</x>
       <y>20</y>
-      <width>341</width>
-      <height>31</height>
+      <width>330</width>
+      <height>30</height>
      </rect>
     </property>
     <property name="text">
@@ -175,9 +175,9 @@
     <property name="geometry">
      <rect>
       <x>680</x>
-      <y>300</y>
+      <y>330</y>
       <width>211</width>
-      <height>16</height>
+      <height>20</height>
      </rect>
     </property>
     <property name="font">
@@ -193,9 +193,9 @@
     <property name="geometry">
      <rect>
       <x>680</x>
-      <y>370</y>
-      <width>131</width>
-      <height>31</height>
+      <y>390</y>
+      <width>130</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
@@ -209,9 +209,9 @@
     <property name="geometry">
      <rect>
       <x>680</x>
-      <y>330</y>
-      <width>131</width>
-      <height>31</height>
+      <y>360</y>
+      <width>130</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
@@ -261,7 +261,7 @@
       <x>680</x>
       <y>170</y>
       <width>211</width>
-      <height>16</height>
+      <height>20</height>
      </rect>
     </property>
     <property name="font">
@@ -276,10 +276,10 @@
    <widget class="QLineEdit" name="lineEdit_y_kp">
     <property name="geometry">
      <rect>
-      <x>890</x>
-      <y>330</y>
-      <width>131</width>
-      <height>31</height>
+      <x>880</x>
+      <y>360</y>
+      <width>130</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
@@ -295,7 +295,7 @@
       <x>680</x>
       <y>200</y>
       <width>341</width>
-      <height>31</height>
+      <height>50</height>
      </rect>
     </property>
     <property name="font">
@@ -313,7 +313,7 @@
       <x>20</x>
       <y>510</y>
       <width>641</width>
-      <height>31</height>
+      <height>30</height>
      </rect>
     </property>
     <property name="text">
@@ -372,7 +372,7 @@
       <x>680</x>
       <y>620</y>
       <width>341</width>
-      <height>31</height>
+      <height>30</height>
      </rect>
     </property>
     <property name="text">
@@ -387,6 +387,13 @@
       <width>341</width>
       <height>51</height>
      </rect>
+    </property>
+    <property name="html">
+     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:7.8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
   </widget>
@@ -413,6 +420,26 @@
    </property>
   </action>
  </widget>
+ <tabstops>
+  <tabstop>pushButton_load_presets</tabstop>
+  <tabstop>pushButton_drone_connect</tabstop>
+  <tabstop>pushButton_drone_disconnect</tabstop>
+  <tabstop>pushButton_update_flags</tabstop>
+  <tabstop>lineEdit_x_kp</tabstop>
+  <tabstop>lineEdit_y_kp</tabstop>
+  <tabstop>lineEdit_x_ki</tabstop>
+  <tabstop>lineEdit_y_ki</tabstop>
+  <tabstop>lineEdit_x_kd</tabstop>
+  <tabstop>lineEdit_y_kd</tabstop>
+  <tabstop>pushButton_create_pid</tabstop>
+  <tabstop>pushButton_video_stream</tabstop>
+  <tabstop>pushButton_program_start</tabstop>
+  <tabstop>pushButton_emergency_stop</tabstop>
+  <tabstop>pushButton_show_info</tabstop>
+  <tabstop>textEdit_drone_info</tabstop>
+  <tabstop>textEdit_controllers_info</tabstop>
+  <tabstop>textEdit_navigation_info</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
