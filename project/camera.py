@@ -24,7 +24,8 @@ class Camera:
     
     def __init__(self, camera_index:int):
         """ 
-        :param camera_index: The index number of the camera that you want to use. Begins counting at 0. 
+        :param camera_index: The index number of the camera that you want to 
+                                use. Begins counting at 0. 
         :type camera_index: Int
         """
         self.cam = cv2.VideoCapture(camera_index)

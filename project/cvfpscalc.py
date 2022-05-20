@@ -3,8 +3,10 @@ Vision Based Navigation Project
 Augusta University
 3/11/2022
 
-File aquired from... : Git Hub Link here
-Used to calculate the fps
+File aquired from: https://github.com/Kazuhito00/cvfpscalc
+File contains the CvFpsCalc class. 
+This class can be used to determine the 
+fps between two function calls. 
 
 cvfpscalc.py
 """
@@ -19,6 +21,9 @@ class CvFpsCalc(object):
         self._difftimes = deque(maxlen=buffer_len)
 
     def get(self):
+        """
+        Calculates the fps between the last call and current call. 
+        """
         current_tick = cv.getTickCount()
         different_time = (current_tick - self._start_tick) * self._freq
         self._start_tick = current_tick

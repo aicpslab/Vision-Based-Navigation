@@ -9,7 +9,7 @@ giving names to colors that represent
 tuples and other numbers used in 
 cv2 function calls. 
 It helps make cv2 function calls
-more readable 
+more readable. 
 
 drawing.py
 """
@@ -19,9 +19,11 @@ from cv2 import FONT_HERSHEY_SIMPLEX
 
 
 class DrawingConstants:
-    """ Class to give names to mostly colors and other numbers
-        that are used when using Cv2 Methods. Makes other code
-        more readable. """
+    """ 
+    Class to give names to colors and other numbers
+    that are used when using Cv2 Methods. 
+    Makes Cv2 function calls more readable 
+    """
     # colors
     red: tuple = (255, 0, 0)
     green: tuple = (0, 255, 0)

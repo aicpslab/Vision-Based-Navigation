@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ids module &mdash; Vision Based Navigation 1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="load_ui module" href="load_ui.html" />
+    <link rel="prev" title="drawing module" href="drawing.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> Vision Based Navigation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">project</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="PidDroneControl.html">PidDroneControl module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="camera.html">camera module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cvfpscalc.html">cvfpscalc module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="drawing.html">drawing module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">ids module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="load_ui.html">load_ui module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model.html">model module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="point.html">point module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="velocityTracker.html">velocityTracker module</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Vision Based Navigation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="modules.html">project</a> &raquo;</li>
+      <li>ids module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/ids.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-ids">
+<span id="ids-module"></span><h1>ids module<a class="headerlink" href="#module-ids" title="Permalink to this headline"></a></h1>
+<p>Vision Based Navigation Project
+Augusta University
+3/11/2022</p>
+<p>This file contains the ID class.
+The ID class is responsible for differenting 
+between separate drones and keeping track of thier positions. 
+The idea is to eliminate ID swapping.</p>
+<dl>
+<dt>ISSUES:</dt><dd><p>Drone Flying off screen causes the ID’s to fight over the position of 
+one drone.</p>
+<p>Linking an IP address with an ID is sketchy. The Tensorflow Model
+must detect the drones in the right order for the IP and ID to match.</p>
+</dd>
+</dl>
+<p>ids.py</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ids.ID">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ids.</span></span><span class="sig-name descname"><span class="pre">ID</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="point.html#point.Point" title="point.Point"><span class="pre">point.Point</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(255,</span> <span class="pre">0,</span> <span class="pre">0)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ids.html#ID"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ids.ID" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>ID class. Keeps track of separate ID’s
+and their respective positions.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ids.ID.instances">
+<span class="sig-name descname"><span class="pre">instances</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#ids.ID.instances" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ids.ID.next_id_num">
+<span class="sig-name descname"><span class="pre">next_id_num</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#ids.ID.next_id_num" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ids.ID.position">
+<span class="sig-name descname"><span class="pre">position</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="point.html#point.Point" title="point.Point"><span class="pre">point.Point</span></a></em><a class="headerlink" href="#ids.ID.position" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ids.ID.color">
+<span class="sig-name descname"><span class="pre">color</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(255,</span> <span class="pre">0,</span> <span class="pre">0)</span></em><a class="headerlink" href="#ids.ID.color" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ids.ID.id_num">
+<span class="sig-name descname"><span class="pre">id_num</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#ids.ID.id_num" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ids.ID.velocityTracking">
+<span class="sig-name descname"><span class="pre">velocityTracking</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="velocityTracker.html#velocityTracker.velocityTracker" title="velocityTracker.velocityTracker"><span class="pre">velocityTracker.velocityTracker</span></a></em><a class="headerlink" href="#ids.ID.velocityTracking" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ids.ID.position_history">
+<span class="sig-name descname"><span class="pre">position_history</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">collections.deque</span></em><a class="headerlink" href="#ids.ID.position_history" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ids.ID.createID">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">createID</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="point.html#point.Point" title="point.Point"><span class="pre">point.Point</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ids.html#ID.createID"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ids.ID.createID" title="Permalink to this definition"></a></dt>
+<dd><p>Creates an ID and puts it in the instances list</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>point</strong> (<a class="reference internal" href="point.html#point.Point" title="point.Point"><em>point.Point</em></a>) – The position of this ID.</p>
+</dd>
+<dt class="field-even">Optional param color</dt>
+<dd class="field-even"><p>A tuple of the desired color.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ids.ID.update_positions">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">update_positions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">possible_positions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="point.html#point.Point" title="point.Point"><span class="pre">point.Point</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ids.html#ID.update_positions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ids.ID.update_positions" title="Permalink to this definition"></a></dt>
+<dd><p>Given possible_positions, this function determines
+which ID is closest to the possible_positions
+and reassigns this new position as the drones 
+position.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>possible_positions</strong> (<em>List of point.Point</em>) – A list containing pairs of (x,y) coordinates
+using the point.Point class.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ids.ID.set_target_flag">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_target_flag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">possible_flags</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ids.html#ID.set_target_flag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ids.ID.set_target_flag" title="Permalink to this definition"></a></dt>
+<dd><p>Sets the target_flag attribute of velocityTracking attribute 
+for each instance of an ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>possible_flags</strong> (<em>List of point.Point</em>) – A list containing pairs of (x,y) coordinates
+using the point.Point class.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ids.ID.set_vec_start">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_vec_start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ids.html#ID.set_vec_start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ids.ID.set_vec_start" title="Permalink to this definition"></a></dt>
+<dd><p>Sets the vec_start attribute of velocityTracking attribute
+for each instance of an ID.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ids.ID.set_vec_end">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_vec_end</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ids.html#ID.set_vec_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ids.ID.set_vec_end" title="Permalink to this definition"></a></dt>
+<dd><p>Sets the vec_end attribute of velocityTracking attribute
+for each instance of an ID.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ids.ID.update_vecs">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">update_vecs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ids.html#ID.update_vecs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ids.ID.update_vecs" title="Permalink to this definition"></a></dt>
+<dd><p>Calls the update_vector method of velocityTracking attribute
+for each instance of an ID.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ids.ID.assign_destination">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">assign_destination</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destinations</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ids.html#ID.assign_destination"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ids.ID.assign_destination" title="Permalink to this definition"></a></dt>
+<dd><p>Not implemented method to take a list of 
+flags/destinations and split them between
+each ID.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ids.ID.draw_histories">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">draw_histories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ids.html#ID.draw_histories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ids.ID.draw_histories" title="Permalink to this definition"></a></dt>
+<dd><p>Draws Points that each ID was previously registered at. 
+The history is limited by the size of the position_history 
+deque attribute of each ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>img</strong> (<em>Numpy Array</em>) – The image the position history is supposed to be drawn on</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ids.ID.draw_vectors">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">draw_vectors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ids.html#ID.draw_vectors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ids.ID.draw_vectors" title="Permalink to this definition"></a></dt>
+<dd><p>Draws the direction vectors, and the path to get to the flag 
+for each instance of an ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>img</strong> (<em>Numpy Array</em>) – The image the vectors are supposed to be drawn on</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ids.ID.draw_id_nums">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">draw_id_nums</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">img</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ids.html#ID.draw_id_nums"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ids.ID.draw_id_nums" title="Permalink to this definition"></a></dt>
+<dd><p>Draws the ID# near each ID for each instance of an ID.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ids.ID.__post_init__">
+<span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ids.html#ID.__post_init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ids.ID.__post_init__" title="Permalink to this definition"></a></dt>
+<dd><p>Finishes setting up an individual instance of an ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attribute position_history</dt>
+<dd class="field-odd"><p>This position history of the ID.
+Updated everytim the position is 
+updated.</p>
+</dd>
+<dt class="field-even">Attribute velocityTracking</dt>
+<dd class="field-even"><p>An extension class to handle using the
+ID’s infomration to calculate relevant
+velocity information.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ids.ID.appendPosition">
+<span class="sig-name descname"><span class="pre">appendPosition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="point.html#point.Point" title="point.Point"><span class="pre">point.Point</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ids.html#ID.appendPosition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ids.ID.appendPosition" title="Permalink to this definition"></a></dt>
+<dd><p>A method to add a position to the position_history deque.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>position</strong> (<a class="reference internal" href="point.html#point.Point" title="point.Point"><em>point.Point</em></a>) – A (x,y) coordinate using the point.Point class.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ids.ID.getHistory">
+<span class="sig-name descname"><span class="pre">getHistory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ids.html#ID.getHistory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ids.ID.getHistory" title="Permalink to this definition"></a></dt>
+<dd><p>Get’s a subsection of the position_history
+<strong>No longer used after implementing the deque for position_history</strong></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>num_points</strong> (<em>Int</em>) – The number of points desired.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="drawing.html" class="btn btn-neutral float-left" title="drawing module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="load_ui.html" class="btn btn-neutral float-right" title="load_ui module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Wesley Cooke, Patrick Woolard.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

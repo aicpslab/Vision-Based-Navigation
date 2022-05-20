@@ -6,7 +6,7 @@ Augusta University
 This file contains the Model class
 that is responsible for loading and
 managing the connection to the 
-tensorflow Model. 
+Tensorflow Model. 
 
 model.py
 """
@@ -27,9 +27,9 @@ from cvfpscalc import CvFpsCalc
 
 class Model:
     """
-        Class Responsible for loading and managing the 
-        camera object and performing detections on 
-        images. 
+    Class Responsible for loading and managing the 
+    camera object and performing detections on 
+    images. 
     """
     # Class Variables
     PATH_TO_SAVED_MODEL = r'.\resources\model\saved_model'
@@ -41,7 +41,15 @@ class Model:
     # Camera Stuff
 
     def __init__(self, cam_index, low_memory : bool = False):
-        
+        """
+        Sets everything up
+
+        :param cam_index: The index of the camera to be used for the model
+        :type cam_index: Int
+
+        :param low_memory: If on a laptop or low memory system, set True
+        :type low_memory: Bool
+        """
         self.cam = Camera(cam_index)
         self.imwidth = int(self.cam.cam.get(cv2.CAP_PROP_FRAME_WIDTH))
         self.imheight = int(self.cam.cam.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -77,7 +85,7 @@ class Model:
     
     def update_detections(self):
         """
-            Gets a new picture and updates self.detections
+        Gets a new picture and updates self.detections
         """
         img = self.cam.click()
         # Prepare the img for the model
@@ -95,8 +103,9 @@ class Model:
     
     def compute_center(self, box):
             """
-                Method to compute the center of a box.
-                Box is the normalized coords from the model.
+            Method to compute the center of a box.
+            Box is the normalized coords from self.detections.
+            Used in update_centers. Not intended to be called externally.
             """
             # Normalized coordinates from the model
             (ymin, xmin, ymax, xmax) = tuple(box.tolist())
@@ -112,8 +121,16 @@ class Model:
             return Point(int(xavg),int(yavg))
 
     def update_centers(self, max_num_detections= None):
-        """ Method to get the flags center from detections.
-            Will only look at max_num_detections number of detections. """
+        """ 
+        Method to get the flags center from detections.
+        Will only look at max_num_detections number of detections. 
+        Makes a call to ID.update_positions, providing the new possible 
+        positions the drones can be at.
+
+        :optional param max_num_detections: How many objects do you expect?
+                                            Default is self.MAX_BOXES
+        :type max_num_detections: int
+        """
         if max_num_detections is None:
             max_num_detections = self.MAX_BOXES
 
@@ -147,9 +164,16 @@ class Model:
         ID.set_target_flag(flag_cents)
     
     def draw_bounding_boxes(self, img=None):
-        """ Method to draw the boxes and confidences
-            around detected objects utilizing 
-            the object_detection API. """
+        """ 
+        Method to draw the boxes and confidences
+        around detected objects utilizing 
+        the object_detection API. 
+
+        :optional param img: Specifiy the image the draw the bounding boxes on
+                             Default will take the last img from the camera
+                             object
+        :type img: Numpy Array
+        """
         if img is None:
             drawn_img = self.cam.img.copy()
         else:
@@ -170,9 +194,11 @@ class Model:
         return drawn_img
 
     def update_vectors_thread(self):
-        """ Method desinged to update all information and draw 
-            all information on self.thread_img.
-            Can be put on a thread and access self.thread_img separately. """
+        """ 
+        Method desinged to update all velocity information and draw 
+        the new information on self.thread_img.
+        Designed to be put on a thread.
+        """
         while True:
             fps = self.cv_fps_calc.get()
             # Update Information
@@ -191,9 +217,11 @@ class Model:
             self.thread_img = _img
 
     def basic_detection_thread(self):
-        """ Method desinged to update basic information.
-            and draw on the self.thread_img. 
-            Can be put on a thread and access self.thread_img separately. """
+        """ 
+        Method desinged to update basic information.
+        and draw on the self.thread_img. 
+        Designed to be put on a thread.
+        """
         while True:
             fps = self.cv_fps_calc.get()
             # Update Information

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PidDroneControl &mdash; Vision Based Navigation 1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Vision Based Navigation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">project</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Vision Based Navigation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">Module code</a> &raquo;</li>
+      <li>PidDroneControl</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for PidDroneControl</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Vision Based Navigation Project</span>
+<span class="sd">Augusta University</span>
+<span class="sd">3/11/2022</span>
+
+<span class="sd">This file contains the PidDroneControl class.</span>
+<span class="sd">This class uses two PID controllers to determine a control value </span>
+<span class="sd">to send to the drone to help it reach a specific position.</span>
+<span class="sd">One PID controls the x movement (left/right) of the drone.</span>
+<span class="sd">The second PID controls the y (forward/back) movement of the drone.</span>
+
+<span class="sd">PidDroneControl.py</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">ids</span> <span class="kn">import</span> <span class="n">ID</span>
+<span class="kn">from</span> <span class="nn">simple_pid</span> <span class="kn">import</span> <span class="n">PID</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">djitellopy</span> <span class="kn">import</span> <span class="n">Tello</span>
+
+<span class="kn">from</span> <span class="nn">point</span> <span class="kn">import</span> <span class="n">Point</span>
+
+<div class="viewcode-block" id="PidDroneControl"><a class="viewcode-back" href="../PidDroneControl.html#PidDroneControl.PidDroneControl">[docs]</a><span class="k">class</span> <span class="nc">PidDroneControl</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class that uses simple_pid to generate control values to send to a Tello </span>
+<span class="sd">    drone.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">drone_object</span><span class="p">:</span><span class="n">Tello</span><span class="p">,</span> <span class="n">point</span><span class="p">:</span><span class="n">Point</span><span class="p">,</span> <span class="n">instance_num</span><span class="p">,</span> <span class="n">kp</span><span class="p">,</span> <span class="n">ki</span><span class="p">,</span> <span class="n">kd</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets everything up. Instance_num is vital to ensure proper control.</span>
+<span class="sd">        This instance number links the drone object/ip with its proper ID. </span>
+<span class="sd">        If the wrong instance number is assigned, the controller will be</span>
+<span class="sd">        getting the position (measured value) from a different drone </span>
+<span class="sd">        than it is controlling. </span>
+
+<span class="sd">        :param drone_object: The drone object that this controller with control</span>
+<span class="sd">        :type drone_object: Tello</span>
+<span class="sd">        </span>
+<span class="sd">        :param point: The setpoint of the controlelr</span>
+<span class="sd">        :type point: point.Point</span>
+<span class="sd">        </span>
+<span class="sd">        :param instance_num: The instance number of the drone object that</span>
+<span class="sd">                             corresponds to the id in the ID.instances list. </span>
+<span class="sd">        :type instance_num: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">drone</span> <span class="o">=</span> <span class="n">drone_object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_limit</span> <span class="o">=</span> <span class="mi">10000</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d2d_range</span> <span class="o">=</span> <span class="mi">20</span>
+        <span class="c1"># Set point is relative to the camera pixel.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">range</span> <span class="o">=</span> <span class="mi">50</span>
+        <span class="n">x_set</span> <span class="o">=</span> <span class="n">point</span><span class="o">.</span><span class="n">x</span>
+        <span class="n">y_set</span> <span class="o">=</span> <span class="n">point</span><span class="o">.</span><span class="n">y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wait_time</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">new_point</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pidx</span><span class="o">=</span> <span class="n">PID</span><span class="p">(</span><span class="n">kp</span><span class="p">,</span> <span class="n">ki</span><span class="p">,</span> <span class="n">kd</span><span class="p">,</span> <span class="n">setpoint</span><span class="o">=</span><span class="n">x_set</span><span class="p">,</span> <span class="n">output_limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pidy</span> <span class="o">=</span> <span class="n">PID</span><span class="p">(</span><span class="n">kp</span><span class="p">,</span> <span class="n">ki</span><span class="p">,</span> <span class="n">kd</span><span class="p">,</span> <span class="n">setpoint</span><span class="o">=</span><span class="n">y_set</span><span class="p">,</span> <span class="n">output_limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">))</span>
+        <span class="c1">#self.pidx= PID(0.20, 0.05, 0.05, setpoint=self.x_set, output_limits=(-self.range,self.range))</span>
+        <span class="c1">#self.pidy = PID(0.20, 0.05, 0.05, setpoint=self.y_set, output_limits=(-self.range,self.range))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_b_vel</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">u_d_vel</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yaw_vel</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">l_r_vel</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">d2d</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">destination</span> <span class="o">=</span> <span class="n">point</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">instance_num</span> <span class="o">=</span> <span class="n">instance_num</span>
+
+<div class="viewcode-block" id="PidDroneControl.update_velocity"><a class="viewcode-back" href="../PidDroneControl.html#PidDroneControl.PidDroneControl.update_velocity">[docs]</a>    <span class="k">def</span> <span class="nf">update_velocity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method to get get the position of the drone, use it to compute</span>
+<span class="sd">        the new control value, and update the velocity of the drone accordingly</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+    
+        <span class="c1"># Get new control values</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="n">ID</span><span class="o">.</span><span class="n">instances</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">instance_num</span><span class="p">]</span><span class="o">.</span><span class="n">position</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">l_r_vel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pidx</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_b_vel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pidy</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">)</span> <span class="o">*</span> <span class="o">-</span><span class="mi">1</span> <span class="c1"># flip the y because it is not normal coordinates due to image processing</span>
+        
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">d2d</span> <span class="o">=</span> <span class="n">position</span><span class="o">.</span><span class="n">dist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">destination</span><span class="p">)</span>
+        
+        <span class="c1">#If the distance is close enough, and the time is under still, hold the drone still</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">d2d</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">d2d_range</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">wait_time</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_limit</span><span class="p">:</span>
+            <span class="c1">#self.drone.send_rc_control(0, 0, self.u_d_vel, self.yaw_vel)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">drone</span><span class="o">.</span><span class="n">send_rc_control</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">l_r_vel</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f_b_vel</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_d_vel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">yaw_vel</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wait_time</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">wait_time</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_limit</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">drone</span><span class="o">.</span><span class="n">send_rc_control</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">l_r_vel</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f_b_vel</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_d_vel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">yaw_vel</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">new_point</span> <span class="o">=</span> <span class="kc">True</span></div>
+            
+<div class="viewcode-block" id="PidDroneControl.update_setpoints"><a class="viewcode-back" href="../PidDroneControl.html#PidDroneControl.PidDroneControl.update_setpoints">[docs]</a>    <span class="k">def</span> <span class="nf">update_setpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">setpoint</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method used to change the setpoint of the controller. </span>
+
+<span class="sd">        :param setpoint: The desired position to move the drone to</span>
+<span class="sd">        :type setpoint: point.Point</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Update the Setpoint and clear the history of the PID.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pidx</span><span class="o">.</span><span class="n">setpoint</span> <span class="o">=</span> <span class="n">setpoint</span><span class="o">.</span><span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pidy</span><span class="o">.</span><span class="n">setpoint</span> <span class="o">=</span> <span class="n">setpoint</span><span class="o">.</span><span class="n">y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pidx</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pidy</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">new_point</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wait_time</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">destination</span> <span class="o">=</span> <span class="n">setpoint</span></div>
+    
+<div class="viewcode-block" id="PidDroneControl.takeoff"><a class="viewcode-back" href="../PidDroneControl.html#PidDroneControl.PidDroneControl.takeoff">[docs]</a>    <span class="k">def</span> <span class="nf">takeoff</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method to make the drone fly</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drone</span><span class="o">.</span><span class="n">takeoff</span><span class="p">()</span></div></div>
+    
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Wesley Cooke, Patrick Woolard.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

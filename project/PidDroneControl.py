@@ -1,3 +1,17 @@
+"""
+Vision Based Navigation Project
+Augusta University
+3/11/2022
+
+This file contains the PidDroneControl class.
+This class uses two PID controllers to determine a control value 
+to send to the drone to help it reach a specific position.
+One PID controls the x movement (left/right) of the drone.
+The second PID controls the y (forward/back) movement of the drone.
+
+PidDroneControl.py
+"""
+
 from ids import ID
 from simple_pid import PID
 import time
@@ -7,13 +21,35 @@ from djitellopy import Tello
 from point import Point
 
 class PidDroneControl:
+    """
+    Class that uses simple_pid to generate control values to send to a Tello 
+    drone.
+    """
 
     def __init__(self, drone_object:Tello, point:Point, instance_num, kp, ki, kd):
+        """
+        Sets everything up. Instance_num is vital to ensure proper control.
+        This instance number links the drone object/ip with its proper ID. 
+        If the wrong instance number is assigned, the controller will be
+        getting the position (measured value) from a different drone 
+        than it is controlling. 
+
+        :param drone_object: The drone object that this controller with control
+        :type drone_object: Tello
+        
+        :param point: The setpoint of the controlelr
+        :type point: point.Point
+        
+        :param instance_num: The instance number of the drone object that
+                             corresponds to the id in the ID.instances list. 
+        :type instance_num: int
+        """
+
         self.drone = drone_object
         self.time_limit = 10000
         self.d2d_range = 20
         # Set point is relative to the camera pixel.
-        self.range = 50
+        self.range = 25
         x_set = point.x
         y_set = point.y
         self.wait_time = 0
@@ -33,6 +69,10 @@ class PidDroneControl:
         self.instance_num = instance_num
 
     def update_velocity(self):
+        """
+        Method to get get the position of the drone, use it to compute
+        the new control value, and update the velocity of the drone accordingly
+        """
     
         # Get new control values
         position = ID.instances[self.instance_num].position
@@ -53,7 +93,12 @@ class PidDroneControl:
             self.new_point = True
             
     def update_setpoints(self,setpoint):
+        """
+        Method used to change the setpoint of the controller. 
 
+        :param setpoint: The desired position to move the drone to
+        :type setpoint: point.Point
+        """
         # Update the Setpoint and clear the history of the PID.
         self.pidx.setpoint = setpoint.x
         self.pidy.setpoint = setpoint.y
@@ -65,5 +110,8 @@ class PidDroneControl:
         self.destination = setpoint
     
     def takeoff(self):
+        """
+        Method to make the drone fly
+        """
         self.drone.takeoff()
     

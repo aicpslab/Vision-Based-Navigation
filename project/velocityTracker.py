@@ -6,7 +6,7 @@ Augusta University
 File that contains the VelocityTracker class.
 This class is used as an attribute of ID from ids.py.
 It manages all the attributes required to determine
-the direction of the drone, the path needed to 
+the direction of the drone, the direction needed to 
 navigate to a flag, and the angle between the 
 direction of the drone and the path. 
 
@@ -19,6 +19,10 @@ from math import atan2, pi
 
 @dataclass
 class velocityTracker():
+    """
+    Class than determines the direction and angle between a setpoint and a 
+    current position
+    """
     target_flag : Point = field(init=False, default=None)
     vec_start : Point = field(init=False, default=None)
     vec_end : Point = field(init=False, default=None)
