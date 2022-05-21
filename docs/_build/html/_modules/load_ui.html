@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>load_ui &mdash; Vision Based Navigation 1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Vision Based Navigation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Vision Based Navigation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">Module code</a> &raquo;</li>
+      <li>load_ui</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for load_ui</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="kn">import</span> <span class="n">QMainWindow</span><span class="p">,</span> <span class="n">QApplication</span><span class="p">,</span> <span class="n">QLabel</span><span class="p">,</span> <span class="n">QPushButton</span><span class="p">,</span> <span class="n">QLineEdit</span><span class="p">,</span> <span class="n">QDialog</span><span class="p">,</span> <span class="n">QAction</span><span class="p">,</span> <span class="n">QMenu</span><span class="p">,</span> <span class="n">QMenuBar</span><span class="p">,</span> <span class="n">QTextEdit</span>
+<span class="kn">from</span> <span class="nn">PyQt5</span> <span class="kn">import</span> <span class="n">uic</span><span class="p">,</span> <span class="n">QtGui</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtGui</span> <span class="kn">import</span> <span class="n">QPixmap</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtCore</span> <span class="kn">import</span> <span class="n">pyqtSignal</span><span class="p">,</span> <span class="n">pyqtSlot</span><span class="p">,</span> <span class="n">Qt</span><span class="p">,</span> <span class="n">QThread</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span> 
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">from</span> <span class="nn">djitellopy</span> <span class="kn">import</span> <span class="n">Tello</span><span class="p">,</span> <span class="n">TelloSwarm</span>
+<span class="kn">from</span> <span class="nn">PidDroneControl</span> <span class="kn">import</span> <span class="n">PidDroneControl</span>
+<span class="kn">from</span> <span class="nn">point</span> <span class="kn">import</span> <span class="n">Point</span>
+<span class="kn">from</span> <span class="nn">model</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">cvfpscalc</span> <span class="kn">import</span> <span class="n">CvFpsCalc</span>
+
+<div class="viewcode-block" id="UI_Single_Mode"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode">[docs]</a><span class="k">class</span> <span class="nc">UI_Single_Mode</span><span class="p">(</span><span class="n">QMainWindow</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">UI_Single_Mode</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="n">uic</span><span class="o">.</span><span class="n">loadUi</span><span class="p">(</span><span class="n">ui_single_path</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFixedSize</span><span class="p">(</span><span class="mi">1036</span><span class="p">,</span> <span class="mi">666</span><span class="p">)</span>
+
+        <span class="c1"># Create the Video Stream Thread</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stream_thread</span> <span class="o">=</span> <span class="n">StreamThread</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stream_thread</span><span class="o">.</span><span class="n">update_img_signal</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_image</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stream_thread</span><span class="o">.</span><span class="n">stream_off_signal</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stream_off</span><span class="p">)</span>
+
+        <span class="c1"># define our widgets</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_widgets</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect_buttons</span><span class="p">()</span> 
+       
+        <span class="bp">self</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    
+<div class="viewcode-block" id="UI_Single_Mode.load_widgets"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.load_widgets">[docs]</a>    <span class="k">def</span> <span class="nf">load_widgets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="c1"># Labels </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLabel</span><span class="p">,</span> <span class="s2">&quot;label_image&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLabel</span><span class="p">,</span> <span class="s2">&quot;label_flags&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_flags</span><span class="o">.</span><span class="n">setWordWrap</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Buttons </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_video_stream</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">,</span> <span class="s2">&quot;pushButton_video_stream&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_program_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">,</span> <span class="s2">&quot;pushButton_program_start&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_create_pid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">,</span> <span class="s2">&quot;pushButton_create_pid&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_emergency_stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">,</span> <span class="s2">&quot;pushButton_emergency_stop&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_update_flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">,</span> <span class="s2">&quot;pushButton_update_flags&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_drone_connect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">,</span> <span class="s2">&quot;pushButton_drone_connect&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_drone_disconnect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">,</span> <span class="s2">&quot;pushButton_drone_disconnect&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_load_presets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">,</span> <span class="s2">&quot;pushButton_load_presets&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Line Edit&#39;s </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_drone_ip</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLineEdit</span><span class="p">,</span> <span class="s2">&quot;lineEdit_drone_ip&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_kp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLineEdit</span><span class="p">,</span> <span class="s2">&quot;lineEdit_x_kp&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_ki</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLineEdit</span><span class="p">,</span> <span class="s2">&quot;lineEdit_x_ki&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_kd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLineEdit</span><span class="p">,</span> <span class="s2">&quot;lineEdit_x_kd&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_kp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLineEdit</span><span class="p">,</span> <span class="s2">&quot;lineEdit_y_kp&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_ki</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLineEdit</span><span class="p">,</span> <span class="s2">&quot;lineEdit_y_ki&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_kd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLineEdit</span><span class="p">,</span> <span class="s2">&quot;lineEdit_y_kd&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_set</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLineEdit</span><span class="p">,</span> <span class="s2">&quot;lineEdit_x_set&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_set</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLineEdit</span><span class="p">,</span> <span class="s2">&quot;lineEdit_y_set&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Menu Button</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_swarm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QAction</span><span class="p">,</span> <span class="s2">&quot;action_swarm&quot;</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="UI_Single_Mode.connect_buttons"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.connect_buttons">[docs]</a>    <span class="k">def</span> <span class="nf">connect_buttons</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_video_stream</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stream_thread</span><span class="o">.</span><span class="n">clicked_video_stream</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_program_start</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clicked_program_start</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_create_pid</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clicked_create_pid</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_emergency_stop</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clicked_emergency_stop</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_update_flags</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clicked_update_flags</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_drone_connect</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clicked_drone_connect</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_drone_disconnect</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clicked_drone_disconnect</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_load_presets</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clicked_load_presets</span><span class="p">)</span> 
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_swarm</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clicked_view_action_swarm</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="UI_Single_Mode.update_image"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.update_image">[docs]</a>    <span class="nd">@pyqtSlot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">update_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cv_img</span><span class="p">):</span>
+        <span class="n">rgb_img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">cv_img</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span><span class="p">)</span>
+        <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">ch</span> <span class="o">=</span> <span class="n">rgb_img</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">bytes_per_line</span> <span class="o">=</span> <span class="n">ch</span> <span class="o">*</span> <span class="n">w</span>
+        <span class="n">qt_format</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QImage</span><span class="p">(</span><span class="n">rgb_img</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">bytes_per_line</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QImage</span><span class="o">.</span><span class="n">Format_RGB888</span><span class="p">)</span>
+        <span class="n">qt_image</span> <span class="o">=</span> <span class="n">qt_format</span><span class="o">.</span><span class="n">scaled</span><span class="p">(</span><span class="mi">640</span><span class="p">,</span> <span class="mi">480</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">KeepAspectRatio</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_image</span><span class="o">.</span><span class="n">setPixmap</span><span class="p">(</span><span class="n">QPixmap</span><span class="o">.</span><span class="n">fromImage</span><span class="p">(</span><span class="n">qt_image</span><span class="p">))</span></div>
+    
+<div class="viewcode-block" id="UI_Single_Mode.stream_off"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.stream_off">[docs]</a>    <span class="nd">@pyqtSlot</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">stream_off</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_image</span><span class="o">.</span><span class="n">setPixmap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stream_thread</span><span class="o">.</span><span class="n">no_stream_img</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UI_Single_Mode.clicked_program_start"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.clicked_program_start">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_program_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">program_thread</span> <span class="o">=</span> <span class="n">SingleProgramThread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">drone</span><span class="o">.</span><span class="n">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pid_controller</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">program_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UI_Single_Mode.clicked_create_pid"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.clicked_create_pid">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_create_pid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">x_kp</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_kp</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+            <span class="n">x_ki</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_ki</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+            <span class="n">x_kd</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_kd</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+            <span class="n">y_kp</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_kp</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+            <span class="n">y_ki</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_ki</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+            <span class="n">y_kd</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_kd</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+            <span class="n">spx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_set</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+            <span class="n">spy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_set</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using Default vaules due to error...&quot;</span><span class="p">)</span>
+            <span class="n">x_kp</span> <span class="o">=</span> <span class="mf">0.20</span>
+            <span class="n">x_ki</span> <span class="o">=</span> <span class="mf">0.05</span>
+            <span class="n">x_kd</span> <span class="o">=</span> <span class="mf">0.05</span>
+            <span class="n">y_kp</span> <span class="o">=</span> <span class="mf">0.20</span>
+            <span class="n">y_ki</span> <span class="o">=</span> <span class="mf">0.05</span>
+            <span class="n">y_kd</span> <span class="o">=</span> <span class="mf">0.05</span>
+            <span class="n">spx</span> <span class="o">=</span> <span class="mi">320</span>
+            <span class="n">spy</span> <span class="o">=</span> <span class="mi">240</span>
+        
+        <span class="k">if</span> <span class="n">spx</span> <span class="ow">and</span> <span class="n">spy</span><span class="p">:</span> 
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">spx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">spx</span><span class="p">)</span>
+                <span class="n">spy</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">spy</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Using default setpoints due to error&#39;</span><span class="p">)</span>
+                <span class="n">spx</span> <span class="o">=</span> <span class="mi">320</span>
+                <span class="n">spy</span> <span class="o">=</span> <span class="mi">240</span>
+            
+            <span class="n">setpoint</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">spx</span><span class="p">,</span> <span class="n">spy</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span><span class="p">:</span>
+            <span class="n">setpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pid_controller</span> <span class="o">=</span> <span class="n">PidDroneControl</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">drone</span><span class="o">.</span><span class="n">self</span><span class="p">,</span> <span class="n">setpoint</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pid_controller</span><span class="o">.</span><span class="n">pidx</span><span class="o">.</span><span class="n">tunings</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_kp</span><span class="p">,</span> <span class="n">x_ki</span><span class="p">,</span> <span class="n">x_kd</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pid_controller</span><span class="o">.</span><span class="n">pidy</span><span class="o">.</span><span class="n">tunings</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_kp</span><span class="p">,</span> <span class="n">y_ki</span><span class="p">,</span> <span class="n">y_kd</span><span class="p">)</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pid_controller</span><span class="o">.</span><span class="n">pidx</span><span class="o">.</span><span class="n">setpoint</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pid_controller</span><span class="o">.</span><span class="n">pidy</span><span class="o">.</span><span class="n">setpoint</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pid_controller</span><span class="o">.</span><span class="n">pidx</span><span class="o">.</span><span class="n">tunings</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pid_controller</span><span class="o">.</span><span class="n">pidy</span><span class="o">.</span><span class="n">tunings</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="UI_Single_Mode.clicked_emergency_stop"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.clicked_emergency_stop">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_emergency_stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">program_thread</span><span class="o">.</span><span class="n">_run_flag</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">program_thread</span><span class="o">.</span><span class="n">drone</span><span class="o">.</span><span class="n">land</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UI_Single_Mode.clicked_update_flags"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.clicked_update_flags">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_update_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">&quot;no_model&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label_flags</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Mod</span><span class="o">.</span><span class="n">flag_centers</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span> <span class="o">=</span> <span class="n">Mod</span><span class="o">.</span><span class="n">flag_centers</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span> <span class="o">=</span> <span class="p">[</span><span class="n">Point</span><span class="p">(</span><span class="mi">320</span><span class="p">,</span><span class="mi">240</span><span class="p">)]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label_flags</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">des_points</span><span class="p">))</span></div>
+    
+<div class="viewcode-block" id="UI_Single_Mode.clicked_drone_connect"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.clicked_drone_connect">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_drone_connect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ip</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_drone_ip</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drone</span> <span class="o">=</span> <span class="n">Drone</span><span class="p">(</span><span class="n">ip</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="UI_Single_Mode.clicked_drone_disconnect"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.clicked_drone_disconnect">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_drone_disconnect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drone</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drone</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">drone</span><span class="si">=}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="UI_Single_Mode.clicked_load_presets"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.clicked_load_presets">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_load_presets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_drone_ip</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">drone_ips</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_kp</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;0.20&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_ki</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;0.05&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_kd</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;0.05&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_kp</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;0.20&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_ki</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;0.05&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_kd</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;0.05&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UI_Single_Mode.clicked_view_action_swarm"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.clicked_view_action_swarm">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_view_action_swarm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span>
+        <span class="n">ui_swarm_mode</span> <span class="o">=</span> <span class="n">UI_Swarm_Mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">ui_swarm_mode</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
+
+<div class="viewcode-block" id="UI_Swarm_Mode"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Swarm_Mode">[docs]</a><span class="k">class</span> <span class="nc">UI_Swarm_Mode</span><span class="p">(</span><span class="n">QMainWindow</span><span class="p">):</span>
+    
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">UI_Swarm_Mode</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="n">uic</span><span class="o">.</span><span class="n">loadUi</span><span class="p">(</span><span class="n">ui_swarm_path</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">stream_thread</span> <span class="o">=</span> <span class="n">StreamThread</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stream_thread</span><span class="o">.</span><span class="n">update_img_signal</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_image</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stream_thread</span><span class="o">.</span><span class="n">stream_off_signal</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stream_off</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_widgets</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect_buttons</span><span class="p">()</span>
+
+<div class="viewcode-block" id="UI_Swarm_Mode.load_widgets"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Swarm_Mode.load_widgets">[docs]</a>    <span class="k">def</span> <span class="nf">load_widgets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_single</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QAction</span><span class="p">,</span> <span class="s2">&quot;action_single&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Labels </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLabel</span><span class="p">,</span> <span class="s2">&quot;label_image&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLabel</span><span class="p">,</span> <span class="s2">&quot;label_flags&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_flags</span><span class="o">.</span><span class="n">setWordWrap</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Buttons </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_video_stream</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">,</span> <span class="s2">&quot;pushButton_video_stream&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_program_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">,</span> <span class="s2">&quot;pushButton_program_start&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_create_pid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">,</span> <span class="s2">&quot;pushButton_create_pid&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_emergency_stop</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">,</span> <span class="s2">&quot;pushButton_emergency_stop&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_update_flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">,</span> <span class="s2">&quot;pushButton_update_flags&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_drone_connect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">,</span> <span class="s2">&quot;pushButton_drone_connect&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_drone_disconnect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">,</span> <span class="s2">&quot;pushButton_drone_disconnect&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_load_presets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">,</span> <span class="s2">&quot;pushButton_load_presets&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_show_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">,</span> <span class="s2">&quot;pushButton_show_info&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Line Edit&#39;s </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_kp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLineEdit</span><span class="p">,</span> <span class="s2">&quot;lineEdit_x_kp&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_ki</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLineEdit</span><span class="p">,</span> <span class="s2">&quot;lineEdit_x_ki&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_kd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLineEdit</span><span class="p">,</span> <span class="s2">&quot;lineEdit_x_kd&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_kp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLineEdit</span><span class="p">,</span> <span class="s2">&quot;lineEdit_y_kp&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_ki</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLineEdit</span><span class="p">,</span> <span class="s2">&quot;lineEdit_y_ki&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_kd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLineEdit</span><span class="p">,</span> <span class="s2">&quot;lineEdit_y_kd&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Text Edits </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">textEdit_drone_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QTextEdit</span><span class="p">,</span> <span class="s2">&quot;textEdit_drone_info&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">textEdit_controllers_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QTextEdit</span><span class="p">,</span> <span class="s2">&quot;textEdit_controllers_info&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">textEdit_navigation_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QTextEdit</span><span class="p">,</span> <span class="s2">&quot;textEdit_navigation_info&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UI_Swarm_Mode.connect_buttons"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Swarm_Mode.connect_buttons">[docs]</a>    <span class="k">def</span> <span class="nf">connect_buttons</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_single</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clicked_view_action_swarm</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_video_stream</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stream_thread</span><span class="o">.</span><span class="n">clicked_video_stream</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_program_start</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clicked_program_start</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_create_pid</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clicked_create_pid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_emergency_stop</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clicked_emergency_stop</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_update_flags</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clicked_update_flags</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_drone_connect</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clicked_drone_connect</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_drone_disconnect</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clicked_drone_disconnect</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_load_presets</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clicked_load_presets</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_show_info</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clicked_show_info</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UI_Swarm_Mode.update_navigation_text"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Swarm_Mode.update_navigation_text">[docs]</a>    <span class="nd">@pyqtSlot</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">update_navigation_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nav_str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">textEdit_navigation_info</span><span class="o">.</span><span class="n">setPlainText</span><span class="p">(</span><span class="n">nav_str</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UI_Swarm_Mode.update_image"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Swarm_Mode.update_image">[docs]</a>    <span class="nd">@pyqtSlot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">update_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cv_img</span><span class="p">):</span>
+        <span class="n">rgb_img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">cv_img</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span><span class="p">)</span>
+        <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">ch</span> <span class="o">=</span> <span class="n">rgb_img</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">bytes_per_line</span> <span class="o">=</span> <span class="n">ch</span> <span class="o">*</span> <span class="n">w</span>
+        <span class="n">qt_format</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QImage</span><span class="p">(</span><span class="n">rgb_img</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">bytes_per_line</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QImage</span><span class="o">.</span><span class="n">Format_RGB888</span><span class="p">)</span>
+        <span class="n">qt_image</span> <span class="o">=</span> <span class="n">qt_format</span><span class="o">.</span><span class="n">scaled</span><span class="p">(</span><span class="mi">640</span><span class="p">,</span> <span class="mi">480</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">KeepAspectRatio</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_image</span><span class="o">.</span><span class="n">setPixmap</span><span class="p">(</span><span class="n">QPixmap</span><span class="o">.</span><span class="n">fromImage</span><span class="p">(</span><span class="n">qt_image</span><span class="p">))</span></div>
+    
+<div class="viewcode-block" id="UI_Swarm_Mode.stream_off"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Swarm_Mode.stream_off">[docs]</a>    <span class="nd">@pyqtSlot</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">stream_off</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_image</span><span class="o">.</span><span class="n">setPixmap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stream_thread</span><span class="o">.</span><span class="n">no_stream_img</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UI_Swarm_Mode.clicked_program_start"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Swarm_Mode.clicked_program_start">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_program_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">program_thread</span> <span class="o">=</span> <span class="n">SwarmProgramThread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">swarm</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">controllers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">program_thread</span><span class="o">.</span><span class="n">update_navigation_signal</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_navigation_text</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">program_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UI_Swarm_Mode.clicked_create_pid"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Swarm_Mode.clicked_create_pid">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_create_pid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">controllers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">x_kp</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_kp</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+            <span class="n">x_ki</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_ki</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+            <span class="n">x_kd</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_kd</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+            <span class="n">y_kp</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_kp</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+            <span class="n">y_ki</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_ki</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+            <span class="n">y_kd</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_kd</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using Default vaules due to error...&quot;</span><span class="p">)</span>
+            <span class="n">x_kp</span> <span class="o">=</span> <span class="mf">0.20</span>
+            <span class="n">x_ki</span> <span class="o">=</span> <span class="mf">0.05</span>
+            <span class="n">x_kd</span> <span class="o">=</span> <span class="mf">0.05</span>
+            <span class="n">y_kp</span> <span class="o">=</span> <span class="mf">0.20</span>
+            <span class="n">y_ki</span> <span class="o">=</span> <span class="mf">0.05</span>
+            <span class="n">y_kd</span> <span class="o">=</span> <span class="mf">0.05</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ind</span><span class="p">,</span> <span class="n">ip</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">drone_ips</span><span class="p">):</span>
+                <span class="n">drone</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">drones</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
+                <span class="n">des</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+                <span class="n">controller</span> <span class="o">=</span> <span class="n">PidDroneControl</span><span class="p">(</span><span class="n">drone</span><span class="p">,</span> <span class="n">des</span><span class="p">,</span> <span class="n">ind</span><span class="p">,</span> <span class="n">x_kp</span><span class="p">,</span> <span class="n">x_ki</span><span class="p">,</span> <span class="n">x_kd</span><span class="p">)</span>
+                <span class="n">controller</span><span class="o">.</span><span class="n">pidx</span><span class="o">.</span><span class="n">tunings</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_kp</span><span class="p">,</span> <span class="n">x_ki</span><span class="p">,</span> <span class="n">x_kd</span><span class="p">)</span>
+                <span class="n">controller</span><span class="o">.</span><span class="n">pidy</span><span class="o">.</span><span class="n">tunings</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_kp</span><span class="p">,</span> <span class="n">y_ki</span><span class="p">,</span> <span class="n">y_kd</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">controllers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">controller</span><span class="p">)</span>
+            
+            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">controllers</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+        
+        <span class="c1">#self.textEdit_controllers_info.setPlainText(f&quot;{self.controllers}&quot;)</span>
+        <span class="c1">#self.textEdit_drone_info.setPlainText(f&quot;{self.drones}\n {self.swarm}&quot;)</span>
+
+<div class="viewcode-block" id="UI_Swarm_Mode.clicked_emergency_stop"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Swarm_Mode.clicked_emergency_stop">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_emergency_stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">program_thread</span><span class="o">.</span><span class="n">_run_flag</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">swarm</span><span class="o">.</span><span class="n">land</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UI_Swarm_Mode.clicked_update_flags"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Swarm_Mode.clicked_update_flags">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_update_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">&quot;no_model&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label_flags</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Mod</span><span class="o">.</span><span class="n">flag_centers</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span> <span class="o">=</span> <span class="n">Mod</span><span class="o">.</span><span class="n">flag_centers</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span> <span class="o">=</span> <span class="p">[</span><span class="n">Point</span><span class="p">(</span><span class="mi">320</span><span class="p">,</span><span class="mi">240</span><span class="p">)]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label_flags</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">des_points</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="UI_Swarm_Mode.clicked_drone_connect"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Swarm_Mode.clicked_drone_connect">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_drone_connect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">drones</span><span class="o">=</span><span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">ip</span> <span class="ow">in</span> <span class="n">drone_ips</span><span class="p">:</span>
+                <span class="n">drone</span> <span class="o">=</span> <span class="n">Tello</span><span class="p">(</span><span class="n">ip</span><span class="p">,</span> <span class="n">retry_count</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">drone</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">drones</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">drone</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">swarm</span> <span class="o">=</span> <span class="n">TelloSwarm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">drones</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UI_Swarm_Mode.clicked_drone_disconnect"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Swarm_Mode.clicked_drone_disconnect">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_drone_disconnect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">drone</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">drones</span><span class="p">:</span>
+                <span class="n">drone</span><span class="o">.</span><span class="n">end</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">drones</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">swarm</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UI_Swarm_Mode.clicked_load_presets"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Swarm_Mode.clicked_load_presets">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_load_presets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_kp</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;0.20&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_ki</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;0.05&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_kd</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;0.05&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_kp</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;0.20&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_ki</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;0.05&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_kd</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;0.05&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UI_Swarm_Mode.clicked_view_action_swarm"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Swarm_Mode.clicked_view_action_swarm">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_view_action_swarm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+    
+<div class="viewcode-block" id="UI_Swarm_Mode.clicked_show_info"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Swarm_Mode.clicked_show_info">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_show_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">textEdit_drone_info</span><span class="o">.</span><span class="n">setPlainText</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">drones</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">string</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">for</span> <span class="n">ind</span><span class="p">,</span> <span class="n">controller</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">controllers</span><span class="p">):</span>
+                <span class="n">string</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;Controller of index </span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="s2">:</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="n">string</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;Navigating to: (</span><span class="si">{</span><span class="n">controller</span><span class="o">.</span><span class="n">pidx</span><span class="o">.</span><span class="n">setpoint</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">controller</span><span class="o">.</span><span class="n">pidy</span><span class="o">.</span><span class="n">setpoint</span><span class="si">}</span><span class="s2">)</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="n">string</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;X Tunings: </span><span class="si">{</span><span class="n">controller</span><span class="o">.</span><span class="n">pidx</span><span class="o">.</span><span class="n">tunings</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">string</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;Y Tunings: </span><span class="si">{</span><span class="n">controller</span><span class="o">.</span><span class="n">pidy</span><span class="o">.</span><span class="n">tunings</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">textEdit_controllers_info</span><span class="o">.</span><span class="n">setPlainText</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">string</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="StreamThread"><a class="viewcode-back" href="../load_ui.html#load_ui.StreamThread">[docs]</a><span class="k">class</span> <span class="nc">StreamThread</span><span class="p">(</span><span class="n">QThread</span><span class="p">):</span>
+    <span class="n">update_img_signal</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+    <span class="n">stream_off_signal</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Create a image for use when there is no stream</span>
+        <span class="n">no_stream_img</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QImage</span><span class="p">(</span><span class="mi">640</span><span class="p">,</span> <span class="mi">480</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QImage</span><span class="o">.</span><span class="n">Format_Indexed8</span><span class="p">)</span>
+        <span class="n">no_stream_img</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">qRgb</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">no_stream_img</span> <span class="o">=</span> <span class="n">QPixmap</span><span class="o">.</span><span class="n">fromImage</span><span class="p">(</span><span class="n">no_stream_img</span><span class="p">)</span>
+    
+<div class="viewcode-block" id="StreamThread.run"><a class="viewcode-back" href="../load_ui.html#load_ui.StreamThread.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="s2">&quot;no_model&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">:</span>
+            <span class="c1"># With Model</span>
+            <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span><span class="p">:</span>
+                <span class="n">img</span> <span class="o">=</span> <span class="n">Mod</span><span class="o">.</span><span class="n">basic_detection</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_img_signal</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stream_off_signal</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Without Model</span>
+            <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span><span class="p">:</span>
+                <span class="n">_</span><span class="p">,</span> <span class="n">img</span> <span class="o">=</span> <span class="n">cam</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_img_signal</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stream_off_signal</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span></div>
+    
+<div class="viewcode-block" id="StreamThread.clicked_video_stream"><a class="viewcode-back" href="../load_ui.html#load_ui.StreamThread.clicked_video_stream">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_video_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div></div>
+    
+<div class="viewcode-block" id="Drone"><a class="viewcode-back" href="../load_ui.html#load_ui.Drone">[docs]</a><span class="k">class</span> <span class="nc">Drone</span><span class="p">():</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ip</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ip</span> <span class="o">=</span> <span class="n">ip</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">self</span> <span class="o">=</span> <span class="n">Tello</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ip</span><span class="p">,</span> <span class="n">retry_count</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+    
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Drone(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ip</span><span class="si">}</span><span class="s2">, self.self= Tello(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ip</span><span class="si">}</span><span class="s2">))&quot;</span>
+
+<div class="viewcode-block" id="Drone.connect"><a class="viewcode-back" href="../load_ui.html#load_ui.Drone.connect">[docs]</a>    <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">self</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Connected to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ip</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="Drone.disconnect"><a class="viewcode-back" href="../load_ui.html#load_ui.Drone.disconnect">[docs]</a>    <span class="k">def</span> <span class="nf">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">self</span><span class="o">.</span><span class="n">end</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Ended Connection to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ip</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="SingleProgramThread"><a class="viewcode-back" href="../load_ui.html#load_ui.SingleProgramThread">[docs]</a><span class="k">class</span> <span class="nc">SingleProgramThread</span><span class="p">(</span><span class="n">QThread</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">drone</span><span class="p">:</span><span class="n">Tello</span><span class="p">,</span> <span class="n">controller</span><span class="p">:</span> <span class="n">PidDroneControl</span><span class="p">,</span> <span class="n">des_points</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drone</span><span class="p">:</span> <span class="n">Tello</span> <span class="o">=</span> <span class="n">drone</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">controller</span> <span class="o">=</span> <span class="n">controller</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span> <span class="o">=</span> <span class="n">des_points</span>
+    
+<div class="viewcode-block" id="SingleProgramThread.run"><a class="viewcode-back" href="../load_ui.html#load_ui.SingleProgramThread.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">drone</span><span class="o">.</span><span class="n">takeoff</span><span class="p">()</span>
+            <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">new_point</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span><span class="p">:</span>
+                        <span class="n">des</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">update_setpoints</span><span class="p">(</span><span class="n">des</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">drone</span><span class="o">.</span><span class="n">land</span><span class="p">()</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">update_velocity</span><span class="p">()</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">d2d</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">wait_time</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="SwarmProgramThread"><a class="viewcode-back" href="../load_ui.html#load_ui.SwarmProgramThread">[docs]</a><span class="k">class</span> <span class="nc">SwarmProgramThread</span><span class="p">(</span><span class="n">QThread</span><span class="p">):</span>
+    <span class="n">update_navigation_signal</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">swarm</span><span class="p">,</span> <span class="n">controllers</span><span class="p">,</span> <span class="n">des_points</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">controllers</span> <span class="o">=</span> <span class="n">controllers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span> <span class="o">=</span> <span class="n">des_points</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">swarm</span> <span class="o">=</span> <span class="n">swarm</span>
+    
+<div class="viewcode-block" id="SwarmProgramThread.run"><a class="viewcode-back" href="../load_ui.html#load_ui.SwarmProgramThread.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">swarm</span><span class="o">.</span><span class="n">takeoff</span><span class="p">()</span>
+
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">controller</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">controllers</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">controller</span><span class="o">.</span><span class="n">new_point</span><span class="p">:</span>
+                    <span class="n">controller</span><span class="o">.</span><span class="n">update_velocity</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span><span class="p">:</span>
+                        <span class="n">des</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+                        <span class="n">controller</span><span class="o">.</span><span class="n">update_setpoints</span><span class="p">(</span><span class="n">des</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">update_nav_string</span><span class="p">()</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">controller</span><span class="o">.</span><span class="n">drone</span><span class="o">.</span><span class="n">land</span><span class="p">()</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">controllers</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">controller</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">controllers</span> <span class="o">==</span> <span class="p">[]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="SwarmProgramThread.update_nav_string"><a class="viewcode-back" href="../load_ui.html#load_ui.SwarmProgramThread.update_nav_string">[docs]</a>    <span class="k">def</span> <span class="nf">update_nav_string</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">nav_string</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">ind</span><span class="p">,</span> <span class="n">controller</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">controllers</span><span class="p">):</span>
+            <span class="n">nav_string</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;Controller </span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="s2"> is navigating to: </span><span class="si">{</span><span class="n">controller</span><span class="o">.</span><span class="n">setpoint</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_navigation_signal</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">nav_string</span><span class="p">)</span></div></div>
+
+<span class="c1"># Initialize the app</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="n">drone_ips</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;192.168.1.100&#39;</span><span class="p">,</span> <span class="s1">&#39;192.168.1.200&#39;</span><span class="p">]</span>
+    <span class="n">cam_index</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="n">app</span> <span class="o">=</span> <span class="n">QApplication</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">&quot;no_model&quot;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">:</span>
+        <span class="n">cam</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">Mod</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">cam_index</span><span class="p">,</span> <span class="n">low_memory</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">ui_single_path</span> <span class="o">=</span> <span class="s2">&quot;./resources/gui_views/single_drone.ui&quot;</span>
+    <span class="n">ui_swarm_path</span> <span class="o">=</span> <span class="s2">&quot;./resources/gui_views/swarm_drone.ui&quot;</span>
+    <span class="n">UIWindow</span> <span class="o">=</span> <span class="n">UI_Single_Mode</span><span class="p">()</span>
+    
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">exec_</span><span class="p">())</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Wesley Cooke, Patrick Woolard.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

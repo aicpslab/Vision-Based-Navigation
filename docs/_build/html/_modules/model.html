@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>model &mdash; Vision Based Navigation 1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Vision Based Navigation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">project</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Vision Based Navigation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">Module code</a> &raquo;</li>
+      <li>model</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for model</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Vision Based Navigation Project</span>
+<span class="sd">Augusta University</span>
+<span class="sd">3/11/2022</span>
+
+<span class="sd">This file contains the Model class</span>
+<span class="sd">that is responsible for loading and</span>
+<span class="sd">managing the connection to the </span>
+<span class="sd">Tensorflow Model. </span>
+
+<span class="sd">model.py</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1"># Python imports</span>
+<span class="kn">from</span> <span class="nn">cv2</span> <span class="kn">import</span> <span class="n">COLOR_RGB2BGR</span><span class="p">,</span> <span class="n">FONT_HERSHEY_SIMPLEX</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">cv2</span>
+<span class="c1"># object_detection API Imports</span>
+<span class="kn">from</span> <span class="nn">object_detection.utils</span> <span class="kn">import</span> <span class="n">label_map_util</span>
+<span class="kn">from</span> <span class="nn">object_detection.utils</span> <span class="kn">import</span> <span class="n">visualization_utils</span> <span class="k">as</span> <span class="n">viz_utils</span>
+<span class="c1"># Custom Imports</span>
+<span class="kn">from</span> <span class="nn">point</span> <span class="kn">import</span> <span class="n">Point</span>
+<span class="kn">from</span> <span class="nn">ids</span> <span class="kn">import</span> <span class="n">ID</span>
+<span class="kn">from</span> <span class="nn">camera</span> <span class="kn">import</span> <span class="n">Camera</span>
+<span class="kn">from</span> <span class="nn">drawing</span> <span class="kn">import</span> <span class="n">DrawingConstants</span> <span class="k">as</span> <span class="n">dc</span>
+<span class="kn">from</span> <span class="nn">cvfpscalc</span> <span class="kn">import</span> <span class="n">CvFpsCalc</span>
+
+<div class="viewcode-block" id="Model"><a class="viewcode-back" href="../model.html#model.Model">[docs]</a><span class="k">class</span> <span class="nc">Model</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class Responsible for loading and managing the </span>
+<span class="sd">    camera object and performing detections on </span>
+<span class="sd">    images. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Class Variables</span>
+    <span class="n">PATH_TO_SAVED_MODEL</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;.\resources\model\saved_model&#39;</span>
+    <span class="n">PATH_TO_LABELS</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;.\resources\annotations\label_map.pbtxt&#39;</span>
+    <span class="c1"># How many boxes do we expect?</span>
+    <span class="n">MAX_BOXES</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="c1"># How confident does the model need to be to display any bouding box?</span>
+    <span class="n">MIN_SCORE_THRESH</span> <span class="o">=</span> <span class="mf">.65</span>
+    <span class="c1"># Camera Stuff</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cam_index</span><span class="p">,</span> <span class="n">low_memory</span> <span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets everything up</span>
+
+<span class="sd">        :param cam_index: The index of the camera to be used for the model</span>
+<span class="sd">        :type cam_index: Int</span>
+
+<span class="sd">        :param low_memory: If on a laptop or low memory system, set True</span>
+<span class="sd">        :type low_memory: Bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cam</span> <span class="o">=</span> <span class="n">Camera</span><span class="p">(</span><span class="n">cam_index</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">imwidth</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cam</span><span class="o">.</span><span class="n">cam</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">CAP_PROP_FRAME_WIDTH</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">imheight</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cam</span><span class="o">.</span><span class="n">cam</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">CAP_PROP_FRAME_HEIGHT</span><span class="p">))</span>
+
+        <span class="c1"># Suppress TensorFlow logging</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="s1">&#39;ERROR&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">low_memory</span><span class="p">:</span>
+            <span class="c1"># enable dynamic memory</span>
+            <span class="n">gpus</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">list_physical_devices</span><span class="p">(</span><span class="s1">&#39;GPU&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">gpu</span> <span class="ow">in</span> <span class="n">gpus</span><span class="p">:</span>
+                <span class="n">tf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">set_memory_growth</span><span class="p">(</span><span class="n">gpu</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Load the Model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">detector_function</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">saved_model</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">PATH_TO_SAVED_MODEL</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cat_indx</span> <span class="o">=</span> <span class="n">label_map_util</span><span class="o">.</span><span class="n">create_category_index_from_labelmap</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">PATH_TO_LABELS</span><span class="p">,</span> <span class="n">use_display_name</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drone_category</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_category</span> <span class="o">=</span> <span class="mi">2</span>
+
+        <span class="c1"># Create Two IDS to start</span>
+        <span class="n">ID</span><span class="o">.</span><span class="n">createID</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">dc</span><span class="o">.</span><span class="n">red</span><span class="p">)</span>
+        <span class="n">ID</span><span class="o">.</span><span class="n">createID</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">dc</span><span class="o">.</span><span class="n">blue</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">drone_centers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_centers</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">thread_img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cam</span><span class="o">.</span><span class="n">click</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">detections</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_detections</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cv_fps_calc</span> <span class="o">=</span> <span class="n">CvFpsCalc</span><span class="p">(</span><span class="n">buffer_len</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    
+<div class="viewcode-block" id="Model.update_detections"><a class="viewcode-back" href="../model.html#model.Model.update_detections">[docs]</a>    <span class="k">def</span> <span class="nf">update_detections</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets a new picture and updates self.detections</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cam</span><span class="o">.</span><span class="n">click</span><span class="p">()</span>
+        <span class="c1"># Prepare the img for the model</span>
+        <span class="n">input_tensor</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+        <span class="n">input_tensor</span> <span class="o">=</span> <span class="n">input_tensor</span><span class="p">[</span><span class="n">tf</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+
+        <span class="c1"># get output from the model</span>
+        <span class="n">detections</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">detector_function</span><span class="p">(</span><span class="n">input_tensor</span><span class="p">)</span>
+        <span class="n">num_detections</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">detections</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;num_detections&#39;</span><span class="p">))</span>
+        <span class="c1"># Clean up detections</span>
+        <span class="n">detections</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:</span><span class="n">num_detections</span><span class="p">]</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+                      <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">detections</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">detections</span> <span class="o">=</span> <span class="n">detections</span></div>
+    
+<div class="viewcode-block" id="Model.compute_center"><a class="viewcode-back" href="../model.html#model.Model.compute_center">[docs]</a>    <span class="k">def</span> <span class="nf">compute_center</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">box</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Method to compute the center of a box.</span>
+<span class="sd">            Box is the normalized coords from self.detections.</span>
+<span class="sd">            Used in update_centers. Not intended to be called externally.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="c1"># Normalized coordinates from the model</span>
+            <span class="p">(</span><span class="n">ymin</span><span class="p">,</span> <span class="n">xmin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">,</span> <span class="n">xmax</span><span class="p">)</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">box</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+            <span class="c1"># Actual coordinates on the image</span>
+            <span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">bottom</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="n">xmin</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">imwidth</span><span class="p">,</span>
+                                        <span class="n">xmax</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">imwidth</span><span class="p">,</span>
+                                        <span class="n">ymin</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">imheight</span><span class="p">,</span>
+                                        <span class="n">ymax</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">imheight</span><span class="p">)</span>
+
+            <span class="n">xavg</span> <span class="o">=</span> <span class="p">(</span><span class="n">left</span> <span class="o">+</span> <span class="n">right</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+            <span class="n">yavg</span> <span class="o">=</span> <span class="p">(</span><span class="n">bottom</span> <span class="o">+</span> <span class="n">top</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+
+            <span class="k">return</span> <span class="n">Point</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">xavg</span><span class="p">),</span><span class="nb">int</span><span class="p">(</span><span class="n">yavg</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Model.update_centers"><a class="viewcode-back" href="../model.html#model.Model.update_centers">[docs]</a>    <span class="k">def</span> <span class="nf">update_centers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_num_detections</span><span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Method to get the flags center from detections.</span>
+<span class="sd">        Will only look at max_num_detections number of detections. </span>
+<span class="sd">        Makes a call to ID.update_positions, providing the new possible </span>
+<span class="sd">        positions the drones can be at.</span>
+
+<span class="sd">        :optional param max_num_detections: How many objects do you expect?</span>
+<span class="sd">                                            Default is self.MAX_BOXES</span>
+<span class="sd">        :type max_num_detections: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">max_num_detections</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">max_num_detections</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MAX_BOXES</span>
+
+        <span class="c1"># Only look at the top few detections</span>
+        <span class="n">boxes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">detections</span><span class="p">[</span><span class="s1">&#39;detection_boxes&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="n">max_num_detections</span><span class="p">]</span>
+        <span class="n">confidences</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">detections</span><span class="p">[</span><span class="s1">&#39;detection_scores&#39;</span><span class="p">]</span>
+        <span class="n">classes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">class_category</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">detections</span><span class="p">[</span><span class="s1">&#39;detection_classes&#39;</span><span class="p">]</span>
+
+        <span class="n">drone_cents</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">flag_cents</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">box</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">boxes</span><span class="p">):</span>
+            <span class="c1"># Determine the cateogry and confidence</span>
+            <span class="n">class_category</span> <span class="o">=</span> <span class="n">classes</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+            <span class="n">confidence</span> <span class="o">=</span> <span class="n">confidences</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">confidence</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">MIN_SCORE_THRESH</span><span class="p">:</span>
+                <span class="c1"># Computer the average centers cords</span>
+                <span class="n">center</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_center</span><span class="p">(</span><span class="n">box</span><span class="p">)</span>
+                <span class="c1"># Append it to the proper list</span>
+                <span class="k">if</span> <span class="n">class_category</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">drone_category</span><span class="p">:</span>
+                    <span class="n">drone_cents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">center</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">class_category</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_category</span><span class="p">:</span>
+                    <span class="n">flag_cents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">center</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">drone_centers</span> <span class="o">=</span> <span class="n">drone_cents</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_centers</span> <span class="o">=</span> <span class="n">flag_cents</span>
+
+        <span class="c1"># Updat the ids based on the new information</span>
+        <span class="n">ID</span><span class="o">.</span><span class="n">update_positions</span><span class="p">(</span><span class="n">drone_cents</span><span class="p">)</span>
+        <span class="n">ID</span><span class="o">.</span><span class="n">set_target_flag</span><span class="p">(</span><span class="n">flag_cents</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="Model.draw_bounding_boxes"><a class="viewcode-back" href="../model.html#model.Model.draw_bounding_boxes">[docs]</a>    <span class="k">def</span> <span class="nf">draw_bounding_boxes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Method to draw the boxes and confidences</span>
+<span class="sd">        around detected objects utilizing </span>
+<span class="sd">        the object_detection API. </span>
+
+<span class="sd">        :optional param img: Specifiy the image the draw the bounding boxes on</span>
+<span class="sd">                             Default will take the last img from the camera</span>
+<span class="sd">                             object</span>
+<span class="sd">        :type img: Numpy Array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">img</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">drawn_img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cam</span><span class="o">.</span><span class="n">img</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">drawn_img</span> <span class="o">=</span> <span class="n">img</span>
+
+        <span class="n">classes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">detections</span><span class="p">[</span><span class="s1">&#39;detection_classes&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+        <span class="n">viz_utils</span><span class="o">.</span><span class="n">visualize_boxes_and_labels_on_image_array</span><span class="p">(</span>
+            <span class="n">drawn_img</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">detections</span><span class="p">[</span><span class="s1">&#39;detection_boxes&#39;</span><span class="p">],</span>
+            <span class="n">classes</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">detections</span><span class="p">[</span><span class="s1">&#39;detection_scores&#39;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cat_indx</span><span class="p">,</span>
+            <span class="n">use_normalized_coordinates</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">max_boxes_to_draw</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">MAX_BOXES</span><span class="p">,</span>
+            <span class="n">min_score_thresh</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">MIN_SCORE_THRESH</span><span class="p">,</span>
+            <span class="n">agnostic_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">drawn_img</span></div>
+
+<div class="viewcode-block" id="Model.update_vectors_thread"><a class="viewcode-back" href="../model.html#model.Model.update_vectors_thread">[docs]</a>    <span class="k">def</span> <span class="nf">update_vectors_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Method desinged to update all velocity information and draw </span>
+<span class="sd">        the new information on self.thread_img.</span>
+<span class="sd">        Designed to be put on a thread.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">fps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cv_fps_calc</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+            <span class="c1"># Update Information</span>
+            <span class="n">ID</span><span class="o">.</span><span class="n">set_vec_start</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_detections</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_centers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MAX_BOXES</span><span class="p">)</span>
+            <span class="n">ID</span><span class="o">.</span><span class="n">set_vec_end</span><span class="p">()</span>
+            <span class="n">ID</span><span class="o">.</span><span class="n">update_vecs</span><span class="p">()</span>
+
+            <span class="c1"># Draw information</span>
+            <span class="n">_img</span> <span class="o">=</span> <span class="n">ID</span><span class="o">.</span><span class="n">draw_vectors</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cam</span><span class="o">.</span><span class="n">img</span><span class="p">)</span>
+            <span class="n">_img</span> <span class="o">=</span> <span class="n">ID</span><span class="o">.</span><span class="n">draw_id_nums</span><span class="p">(</span><span class="n">_img</span><span class="p">)</span>
+            <span class="n">_img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">draw_bounding_boxes</span><span class="p">(</span><span class="n">_img</span><span class="p">)</span>
+            <span class="n">_img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">_img</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_RGB2BGR</span><span class="p">)</span>
+            <span class="n">_img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">putText</span><span class="p">(</span><span class="n">_img</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">fps</span><span class="p">),</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span> <span class="n">dc</span><span class="o">.</span><span class="n">font</span><span class="p">,</span> <span class="n">dc</span><span class="o">.</span><span class="n">font_scale</span><span class="p">,</span> <span class="n">dc</span><span class="o">.</span><span class="n">light_purple</span><span class="p">,</span> <span class="n">dc</span><span class="o">.</span><span class="n">font_thickness</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">LINE_AA</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">thread_img</span> <span class="o">=</span> <span class="n">_img</span></div>
+
+<div class="viewcode-block" id="Model.basic_detection_thread"><a class="viewcode-back" href="../model.html#model.Model.basic_detection_thread">[docs]</a>    <span class="k">def</span> <span class="nf">basic_detection_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Method desinged to update basic information.</span>
+<span class="sd">        and draw on the self.thread_img. </span>
+<span class="sd">        Designed to be put on a thread.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">fps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cv_fps_calc</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+            <span class="c1"># Update Information</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_detections</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_centers</span><span class="p">()</span>
+
+            <span class="c1"># Draw Information</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">draw_bounding_boxes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cam</span><span class="o">.</span><span class="n">img</span><span class="p">)</span>
+            <span class="c1">#img = ID.draw_histories(img, 30)</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">ID</span><span class="o">.</span><span class="n">draw_id_nums</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_RGB2BGR</span><span class="p">)</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">putText</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">fps</span><span class="p">),</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span> <span class="n">dc</span><span class="o">.</span><span class="n">font</span><span class="p">,</span> <span class="n">dc</span><span class="o">.</span><span class="n">font_scale</span><span class="p">,</span> <span class="n">dc</span><span class="o">.</span><span class="n">light_purple</span><span class="p">,</span> <span class="n">dc</span><span class="o">.</span><span class="n">font_thickness</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">LINE_AA</span><span class="p">)</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">thread_img</span> <span class="o">=</span> <span class="n">img</span></div>
+    
+<div class="viewcode-block" id="Model.basic_detection"><a class="viewcode-back" href="../model.html#model.Model.basic_detection">[docs]</a>    <span class="k">def</span> <span class="nf">basic_detection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Same as basic_detection_thread but not for use with a thread. &quot;&quot;&quot;</span>
+        <span class="n">fps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cv_fps_calc</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_detections</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_centers</span><span class="p">()</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">draw_bounding_boxes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cam</span><span class="o">.</span><span class="n">img</span><span class="p">)</span>
+        <span class="c1">#img = ID.draw_histories(img, 10)</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">ID</span><span class="o">.</span><span class="n">draw_id_nums</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_RGB2BGR</span><span class="p">)</span>
+
+        <span class="n">img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">putText</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">fps</span><span class="p">),</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span> <span class="n">dc</span><span class="o">.</span><span class="n">font</span><span class="p">,</span> <span class="n">dc</span><span class="o">.</span><span class="n">font_scale</span><span class="p">,</span> <span class="n">dc</span><span class="o">.</span><span class="n">light_purple</span><span class="p">,</span> <span class="n">dc</span><span class="o">.</span><span class="n">font_thickness</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">LINE_AA</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">thread_img</span> <span class="o">=</span> <span class="n">img</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">thread_img</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Wesley Cooke, Patrick Woolard.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
