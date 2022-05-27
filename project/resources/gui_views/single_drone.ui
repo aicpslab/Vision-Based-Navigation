@@ -386,6 +386,32 @@
      <string>X Set Point</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="pushButton_load_tunings">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>360</y>
+      <width>130</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Load Tunings</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_save_tunings">
+    <property name="geometry">
+     <rect>
+      <x>870</x>
+      <y>360</y>
+      <width>130</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Load Tunings</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -393,7 +419,7 @@
      <x>0</x>
      <y>0</y>
      <width>1036</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuView">

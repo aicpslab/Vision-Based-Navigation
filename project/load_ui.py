@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import QMainWindow, QApplication, QLabel, QPushButton, QLineEdit, QDialog, QAction, QMenu, QMenuBar, QTextEdit
+import json
 from PyQt5 import uic, QtGui
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt, QThread
@@ -46,6 +47,8 @@ class UI_Single_Mode(QMainWindow):
         self.pushButton_drone_connect = self.findChild(QPushButton, "pushButton_drone_connect")
         self.pushButton_drone_disconnect = self.findChild(QPushButton, "pushButton_drone_disconnect")
         self.pushButton_load_presets = self.findChild(QPushButton, "pushButton_load_presets")
+        self.pushButton_load_tunings = self.findChild(QPushButton, "pushButton_load_tunings")
+        self.pushButton_save_tunings = self.findChild(QPushButton, "pushButton_save_tunings")
 
         # Line Edit's 
         self.lineEdit_drone_ip = self.findChild(QLineEdit, "lineEdit_drone_ip")
@@ -71,6 +74,8 @@ class UI_Single_Mode(QMainWindow):
         self.pushButton_drone_connect.clicked.connect(self.clicked_drone_connect)
         self.pushButton_drone_disconnect.clicked.connect(self.clicked_drone_disconnect) 
         self.pushButton_load_presets.clicked.connect(self.clicked_load_presets) 
+        self.pushButton_load_tunings.clicked.connect(self.clicked_load_tunings)
+        self.pushButton_save_tunings.clicked.connect(self.clicked_save_tunings)
 
         self.action_swarm.triggered.connect(self.clicked_view_action_swarm)
     
@@ -171,10 +176,10 @@ class UI_Single_Mode(QMainWindow):
 
         self.lineEdit_drone_ip.setText(str(drone_ips[0]))
         self.lineEdit_x_kp.setText("0.30")
-        self.lineEdit_x_ki.setText("0.02")
-        self.lineEdit_x_kd.setText("0.27")
-        self.lineEdit_y_kp.setText("0.30")
-        self.lineEdit_y_ki.setText("0.01")
+        self.lineEdit_x_ki.setText("0.08")
+        self.lineEdit_x_kd.setText("0.3")
+        self.lineEdit_y_kp.setText("0.25")
+        self.lineEdit_y_ki.setText("0.05")
         self.lineEdit_y_kd.setText("0.1")
 
     def clicked_view_action_swarm(self):
@@ -182,6 +187,32 @@ class UI_Single_Mode(QMainWindow):
         self.hide()
         ui_swarm_mode = UI_Swarm_Mode(self)
         ui_swarm_mode.show()
+    
+    def clicked_load_tunings(self):
+        with open('pid_tunings.json', 'r') as f:
+            tunings = json.load(f)
+
+        self.lineEdit_x_kp.setText(tunings['x_kp'])
+        self.lineEdit_x_ki.setText(tunings['x_ki'])
+        self.lineEdit_x_kd.setText(tunings['x_kd'])
+        self.lineEdit_y_kp.setText(tunings['y_kp'])
+        self.lineEdit_y_ki.setText(tunings['y_ki'])
+        self.lineEdit_y_kd.setText(tunings['y_kd'])
+
+
+
+    def clicked_save_tunings(self):
+        tunings = {
+            'x_kp': self.lineEdit_x_kp.text(),
+            'x_ki': self.lineEdit_x_ki.text(),
+            'x_kd': self.lineEdit_x_kd.text(),
+            'y_kp': self.lineEdit_y_kp.text(),
+            'y_ki': self.lineEdit_y_ki.text(),
+            'y_kd': self.lineEdit_y_kd.text()
+        }
+
+        with open('pid_tunings.json', 'w') as f:
+            json.dump(tunings, f)
 
 class UI_Swarm_Mode(QMainWindow):
     
@@ -498,7 +529,7 @@ class SwarmProgramThread(QThread):
 if __name__ == "__main__":
 
     drone_ips = ['192.168.1.100', '192.168.1.200']
-    cam_index = 1
+    cam_index = 0
 
     app = QApplication(sys.argv)
 
