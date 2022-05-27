@@ -170,12 +170,12 @@ class UI_Single_Mode(QMainWindow):
     def clicked_load_presets(self):
 
         self.lineEdit_drone_ip.setText(str(drone_ips[0]))
-        self.lineEdit_x_kp.setText("0.20")
-        self.lineEdit_x_ki.setText("0.05")
-        self.lineEdit_x_kd.setText("0.05")
-        self.lineEdit_y_kp.setText("0.20")
-        self.lineEdit_y_ki.setText("0.05")
-        self.lineEdit_y_kd.setText("0.05")
+        self.lineEdit_x_kp.setText("0.30")
+        self.lineEdit_x_ki.setText("0.02")
+        self.lineEdit_x_kd.setText("0.27")
+        self.lineEdit_y_kp.setText("0.30")
+        self.lineEdit_y_ki.setText("0.01")
+        self.lineEdit_y_kd.setText("0.1")
 
     def clicked_view_action_swarm(self):
 

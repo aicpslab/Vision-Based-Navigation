@@ -49,7 +49,7 @@ class PidDroneControl:
         self.time_limit = 10000
         self.d2d_range = 20
         # Set point is relative to the camera pixel.
-        self.range = 25
+        self.range = 20
         x_set = point.x
         y_set = point.y
         self.wait_time = 0
