@@ -40,6 +40,10 @@ It is installing dependencies.
 Make sure it doesn't get stuck trying 
 to resolve a specific package. 
 
+Noted on 5/31/22 pyparsing will throw an issue when running the test for TF2.
+This can be resolved by running the following command:
+    pip instll httplib2
+
 To ensure everything is working run the following command from the research folder
     python object_detection/builders/model_builder_tf2_test.py
 
