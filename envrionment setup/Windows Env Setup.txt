@@ -51,3 +51,19 @@ If this runs without fail, Congrats! Everything is ready to go!
 
 If you have a gpu, now is the time to look into 
 setting up gpu support for tensorflow. 
+
+To install tensorflow, first install the CUDA tool kit. 
+Under advanced installation, turn off physx, gefore experince, and the optional drivers. 
+Only install CUDA. 
+    https://developer.nvidia.com/cuda-11.2.2-download-archive?target_os=Windows&target_arch=x86_64&target_version=10&target_type=exenetwork
+   
+Download cuDNN v8.1.0 (January 26th, 2021) from (it's a zip file)
+    https://developer.nvidia.com/rdp/cudnn-archive#a-collapse810-111
+    
+Once CUDA is done installing, navigate to where it installed at. 
+It will look something like this: 
+    C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.2
+
+Extract the zip file from the cuDNN 
+
+    
