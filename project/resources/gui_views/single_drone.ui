@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1036</width>
+    <width>1706</width>
     <height>666</height>
    </rect>
   </property>
@@ -412,13 +412,33 @@
      <string>Load Tunings</string>
     </property>
    </widget>
+   <widget class="PlotWidget" name="qtGraph_x" native="true">
+    <property name="geometry">
+     <rect>
+      <x>1040</x>
+      <y>20</y>
+      <width>641</width>
+      <height>271</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="PlotWidget" name="qtGraph_y" native="true">
+    <property name="geometry">
+     <rect>
+      <x>1040</x>
+      <y>350</y>
+      <width>641</width>
+      <height>271</height>
+     </rect>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1036</width>
+     <width>1706</width>
      <height>21</height>
     </rect>
    </property>
@@ -436,6 +456,14 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>PlotWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">pyqtgraph</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>pushButton_load_presets</tabstop>
   <tabstop>lineEdit_drone_ip</tabstop>

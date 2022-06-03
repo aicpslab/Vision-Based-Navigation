@@ -115,3 +115,8 @@ class PidDroneControl:
         """
         self.drone.takeoff()
     
+    def land(self):
+        """
+        Method to land the drone
+        """
+        self.drone.land()

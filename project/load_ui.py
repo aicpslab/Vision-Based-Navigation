@@ -1,3 +1,5 @@
+from itertools import starmap
+from typing import List
 from PyQt5.QtWidgets import QMainWindow, QApplication, QLabel, QPushButton, QLineEdit, QDialog, QAction, QMenu, QMenuBar, QTextEdit
 import json
 from PyQt5 import uic, QtGui
@@ -11,6 +13,9 @@ from PidDroneControl import PidDroneControl
 from point import Point
 from model import Model
 from cvfpscalc import CvFpsCalc
+import time
+from ids import ID
+from pyqtgraph import PlotWidget, plot, InfiniteLine
 
 class UI_Single_Mode(QMainWindow):
 
@@ -18,12 +23,16 @@ class UI_Single_Mode(QMainWindow):
         super(UI_Single_Mode, self).__init__()
 
         uic.loadUi(ui_single_path, self)
-        self.setFixedSize(1036, 666)
+        #self.setFixedSize(1036, 666)
 
         # Create the Video Stream Thread
         self.stream_thread = StreamThread()
         self.stream_thread.update_img_signal.connect(self.update_image)
         self.stream_thread.stream_off_signal.connect(self.stream_off)
+        
+        # Create the Graph Info Thread
+        self.graph_info = GraphInfo()
+        self.graph_info.update_plots_signal.connect(self.update_plots)
 
         # define our widgets
         self.load_widgets()
@@ -63,6 +72,13 @@ class UI_Single_Mode(QMainWindow):
 
         # Menu Button
         self.action_swarm = self.findChild(QAction, "action_swarm")
+
+        # Graphs
+        self.qtGraph_x = self.findChild(PlotWidget, "qtGraph_x")
+        self.qtGraph_y = self.findChild(PlotWidget, "qtGraph_y")
+
+        self.x_line_data = self.qtGraph_x.plot()
+        self.y_line_data = self.qtGraph_y.plot()
     
     def connect_buttons(self):
         
@@ -92,11 +108,33 @@ class UI_Single_Mode(QMainWindow):
     def stream_off(self):
         self.label_image.setPixmap(self.stream_thread.no_stream_img)
 
+    @pyqtSlot(tuple)
+    def update_plots(self, params):
+        x_list, y_list, time_list = params
+        self.x_line_data.setData(time_list, x_list)
+        self.y_line_data.setData(time_list, y_list)
+        print('Ran plot commands')
+
     def clicked_program_start(self):
         try:
             self.program_thread = SingleProgramThread(self.drone.self, self.pid_controller, self.des_points)
+            self.program_thread.drone_landed_signal.connect(self.graph_info.stop)
+            # self.qtGraph_x.clear()
+            # self.qtGraph_y.clear()
+            
+            self.x_line_data.setData([0],[0])
+            self.y_line_data.setData([0],[0])
+
+            self.qtGraph_x.addLine(y=self.pid_controller.pidx.setpoint)
+            self.qtGraph_y.addLine(y=self.pid_controller.pidy.setpoint)
+
             self.program_thread.start()
+            self.graph_info.start()
         except Exception as e:
+            if self.program_thread._run_flag:
+                self.program_thread._run_flag = False
+            if self.graph_info._run_flag:
+               self.graph_info._run_flag = False
             print(e)
 
     def clicked_create_pid(self):
@@ -111,27 +149,17 @@ class UI_Single_Mode(QMainWindow):
             spy = self.lineEdit_y_set.text()
         except Exception as e:
             print(e)
-            print("Using Default vaules due to error...")
-            x_kp = 0.20
-            x_ki = 0.05
-            x_kd = 0.05
-            y_kp = 0.20
-            y_ki = 0.05
-            y_kd = 0.05
-            spx = 320
-            spy = 240
+            return
         
-        if spx and spy: 
+        if spx and spy:
+
             try:
                 spx = int(spx)
                 spy = int(spy)
+                setpoint = Point(spx, spy)
             except Exception as e:
                 print(e)
-                print('Using default setpoints due to error')
-                spx = 320
-                spy = 240
-            
-            setpoint = Point(spx, spy)
+                return
 
         elif self.des_points:
             setpoint = self.des_points.pop()
@@ -149,9 +177,16 @@ class UI_Single_Mode(QMainWindow):
             print(e)
         
     def clicked_emergency_stop(self):
+        self.pid_controller.land()
+        self.graph_info.stop()
         try:
-            self.program_thread._run_flag = False
-            self.program_thread.drone.land()
+            if self.program_thread._run_flag:
+                self.program_thread._run_flag = False
+        except Exception as e:
+            print(e)
+        
+        try:
+            self.graph_info.stop()
         except Exception as e:
             print(e)
 
@@ -198,8 +233,6 @@ class UI_Single_Mode(QMainWindow):
         self.lineEdit_y_kp.setText(tunings['y_kp'])
         self.lineEdit_y_ki.setText(tunings['y_ki'])
         self.lineEdit_y_kd.setText(tunings['y_kd'])
-
-
 
     def clicked_save_tunings(self):
         tunings = {
@@ -459,7 +492,7 @@ class Drone():
         print(f'Ended Connection to {self.ip}')
 
 class SingleProgramThread(QThread):
-
+    drone_landed_signal = pyqtSignal()
     def __init__(self, drone:Tello, controller: PidDroneControl, des_points):
         super().__init__()
         self._run_flag = False
@@ -480,10 +513,12 @@ class SingleProgramThread(QThread):
                     else:
                         self.drone.land()
                         self._run_flag = False
+                        self.drone_landed_signal.emit()
                 else:
                     self.controller.update_velocity()
-                    print(self.controller.d2d)
-                    print(self.controller.wait_time)
+                    #print('Updated Velocity..')
+                    #print(self.controller.d2d)
+                    #print(self.controller.wait_time)
         except Exception as e:
             self._run_flag = False
             print(e)
@@ -524,6 +559,37 @@ class SwarmProgramThread(QThread):
             nav_string += f"Controller {ind} is navigating to: {controller.setpoint}\n"
 
         self.update_navigation_signal.emit(nav_string)
+
+class GraphInfo(QThread):
+    update_plots_signal = pyqtSignal(tuple)
+
+    def __init__(self):
+        super().__init__()
+        self.x_list = [0]
+        self.y_list = [0]
+        self.time_list = [0]
+        self._run_flag = False
+    
+    def run(self):
+        self._run_flag = True
+        self.start_time = time.time()
+        try:
+            while self._run_flag: 
+                position = ID.instances[0].position
+                # self.x_list = self.x_list[1:]
+                # self.y_list = self.y_list[1:]
+                # self.time_list = self.time_list[1:]
+                self.x_list.append(position.x)
+                self.y_list.append(position.y)
+                self.time_list.append(time.time()-self.start_time)
+                self.update_plots_signal.emit((self.x_list, self.y_list, self.time_list))
+                time.sleep(0.1)
+        except Exception as e:
+            print(e)
+            self._run_flag = False
+    
+    def stop(self):
+        self._run_flag = False
 
 # Initialize the app
 if __name__ == "__main__":
