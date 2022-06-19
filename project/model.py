@@ -74,7 +74,6 @@ class Model:
         ID.createID(Point(0, 0), dc.red)
         ID.createID(Point(0,0), dc.blue)
 
-        self.drone_centers = []
         self.flag_centers = []
 
         self.thread_img = self.cam.click()
@@ -156,12 +155,11 @@ class Model:
                 elif class_category == self.flag_category:
                     flag_cents.append(center)
 
-        self.drone_centers = drone_cents
         self.flag_centers = flag_cents
 
         # Updat the ids based on the new information
         ID.update_positions(drone_cents)
-        ID.set_target_flag(flag_cents)
+        # ID.set_target_flag(flag_cents)
     
     def draw_bounding_boxes(self, img=None):
         """ 
@@ -247,5 +245,5 @@ class Model:
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
         img = cv2.putText(img, str(fps), (5, 50), dc.font, dc.font_scale, dc.light_purple, dc.font_thickness, cv2.LINE_AA) 
-        self.thread_img = img
+        #self.thread_img = img
         return self.thread_img
