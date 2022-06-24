@@ -23,26 +23,26 @@ class UI_Single_Mode(QMainWindow):
         super(UI_Single_Mode, self).__init__()
 
         uic.loadUi(ui_single_path, self)
-        #self.setFixedSize(1036, 666)
+        # self.setFixedSize(1036, 666)
 
         # Create the Video Stream Thread
         self.stream_thread = StreamThread()
         self.stream_thread.update_img_signal.connect(self.update_image)
         self.stream_thread.stream_off_signal.connect(self.stream_off)
-        
+
         # Create the Graph Info Thread
-        self.graph_info = GraphInfo()
-        self.graph_info.update_plots_signal.connect(self.update_plots)
+        # self.graph_info = GraphInfo()
+        # self.graph_info.update_plots_signal.connect(self.update_plots)
 
         # define our widgets
         self.load_widgets()
-        self.connect_buttons() 
-       
+        self.connect_buttons()
+
         self.show()
-    
+
     def load_widgets(self):
-        
-        # Labels 
+
+        # Labels
         self.label_image = self.findChild(QLabel, "label_image")
         self.label_flags = self.findChild(QLabel, "label_flags")
         self.label_flags.setWordWrap(True)
@@ -74,11 +74,11 @@ class UI_Single_Mode(QMainWindow):
         self.action_swarm = self.findChild(QAction, "action_swarm")
 
         # Graphs
-        self.qtGraph_x = self.findChild(PlotWidget, "qtGraph_x")
-        self.qtGraph_y = self.findChild(PlotWidget, "qtGraph_y")
+        # self.qtGraph_x = self.findChild(PlotWidget, "qtGraph_x")
+        # self.qtGraph_y = self.findChild(PlotWidget, "qtGraph_y")
 
-        self.x_line_data = self.qtGraph_x.plot()
-        self.y_line_data = self.qtGraph_y.plot()
+        # self.x_line_data = self.qtGraph_x.plot()
+        # self.y_line_data = self.qtGraph_y.plot()
     
     def connect_buttons(self):
         
@@ -118,23 +118,25 @@ class UI_Single_Mode(QMainWindow):
     def clicked_program_start(self):
         try:
             self.program_thread = SingleProgramThread(self.drone.self, self.pid_controller, self.des_points)
-            self.program_thread.drone_landed_signal.connect(self.graph_info.stop)
+            # self.program_thread.drone_landed_signal.connect(self.graph_info.stop)
             # self.qtGraph_x.clear()
             # self.qtGraph_y.clear()
             
-            self.x_line_data.setData([0],[0])
-            self.y_line_data.setData([0],[0])
+            # self.x_line_data.setData([0],[0])
+            # self.y_line_data.setData([0],[0])
 
-            self.qtGraph_x.addLine(y=self.pid_controller.pidx.setpoint)
-            self.qtGraph_y.addLine(y=self.pid_controller.pidy.setpoint)
+            # self.qtGraph_x.addLine(y=self.pid_controller.pidx.setpoint)
+            # self.qtGraph_y.addLine(y=self.pid_controller.pidy.setpoint)
 
             self.program_thread.start()
-            self.graph_info.start()
+            # self.graph_info.start()
         except Exception as e:
             if self.program_thread._run_flag:
+                print(f"{self.program_thread._run_flag=}")
                 self.program_thread._run_flag = False
-            if self.graph_info._run_flag:
-               self.graph_info._run_flag = False
+                print(f"{self.program_thread._run_flag=}")
+            # if self.graph_info._run_flag:
+            #    self.graph_info._run_flag = False
             print(e)
 
     def clicked_create_pid(self):
@@ -177,18 +179,19 @@ class UI_Single_Mode(QMainWindow):
             print(e)
         
     def clicked_emergency_stop(self):
-        self.pid_controller.land()
-        self.graph_info.stop()
+        
+        try:
+            self.pid_controller.land()
+        except Exception as e:
+            print(e)
+        # self.graph_info.stop()
         try:
             if self.program_thread._run_flag:
                 self.program_thread._run_flag = False
         except Exception as e:
             print(e)
-        
-        try:
-            self.graph_info.stop()
-        except Exception as e:
-            print(e)
+
+        self.stream_thread._run_flag = False
 
     def clicked_update_flags(self):
         if "no_model" not in sys.argv:
@@ -441,7 +444,6 @@ class StreamThread(QThread):
     def __init__(self):
         super().__init__()
         self._run_flag = False
-
         # Create a image for use when there is no stream
         no_stream_img = QtGui.QImage(640, 480, QtGui.QImage.Format_Indexed8)
         no_stream_img.fill(QtGui.qRgb(128, 128, 128))
@@ -469,6 +471,7 @@ class StreamThread(QThread):
             self._run_flag = False
         else:
             self.start()
+    
     
 class Drone():
 
