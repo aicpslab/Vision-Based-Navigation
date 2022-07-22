@@ -34,8 +34,11 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <!-- Local TOC -->
-              <div class="local-toc"></div>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">project</a></li>
+</ul>
+
         </div>
       </div>
     </nav>
@@ -61,7 +64,9 @@
            <div itemprop="articleBody">
              
   <h1>Source code for load_ui</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="kn">import</span> <span class="n">QMainWindow</span><span class="p">,</span> <span class="n">QApplication</span><span class="p">,</span> <span class="n">QLabel</span><span class="p">,</span> <span class="n">QPushButton</span><span class="p">,</span> <span class="n">QLineEdit</span><span class="p">,</span> <span class="n">QDialog</span><span class="p">,</span> <span class="n">QAction</span><span class="p">,</span> <span class="n">QMenu</span><span class="p">,</span> <span class="n">QMenuBar</span><span class="p">,</span> <span class="n">QTextEdit</span>
+<span></span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="kn">import</span> <span class="n">QMainWindow</span><span class="p">,</span> <span class="n">QApplication</span><span class="p">,</span> <span class="n">QLabel</span><span class="p">,</span> <span class="n">QPushButton</span><span class="p">,</span> <span class="n">QLineEdit</span><span class="p">,</span> <span class="n">QDialog</span><span class="p">,</span> <span class="n">QAction</span><span class="p">,</span> <span class="n">QMenu</span><span class="p">,</span> <span class="n">QMenuBar</span><span class="p">,</span> <span class="n">QTextEdit</span>
+<span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">from</span> <span class="nn">PyQt5</span> <span class="kn">import</span> <span class="n">uic</span><span class="p">,</span> <span class="n">QtGui</span>
 <span class="kn">from</span> <span class="nn">PyQt5.QtGui</span> <span class="kn">import</span> <span class="n">QPixmap</span>
 <span class="kn">from</span> <span class="nn">PyQt5.QtCore</span> <span class="kn">import</span> <span class="n">pyqtSignal</span><span class="p">,</span> <span class="n">pyqtSlot</span><span class="p">,</span> <span class="n">Qt</span><span class="p">,</span> <span class="n">QThread</span>
@@ -73,30 +78,58 @@
 <span class="kn">from</span> <span class="nn">point</span> <span class="kn">import</span> <span class="n">Point</span>
 <span class="kn">from</span> <span class="nn">model</span> <span class="kn">import</span> <span class="n">Model</span>
 <span class="kn">from</span> <span class="nn">cvfpscalc</span> <span class="kn">import</span> <span class="n">CvFpsCalc</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">ids</span> <span class="kn">import</span> <span class="n">ID</span>
+<span class="kn">from</span> <span class="nn">generate_circle</span> <span class="kn">import</span> <span class="n">generate_circle</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">from</span> <span class="nn">generate_star</span> <span class="kn">import</span> <span class="n">generate_star</span>
 
 <div class="viewcode-block" id="UI_Single_Mode"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode">[docs]</a><span class="k">class</span> <span class="nc">UI_Single_Mode</span><span class="p">(</span><span class="n">QMainWindow</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class that handles the UI for the single drone version of the app.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="UI_Single_Mode.__init__"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Set Up the UI &quot;&quot;&quot;</span>
+
         <span class="nb">super</span><span class="p">(</span><span class="n">UI_Single_Mode</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
+        <span class="c1"># Load the UI elements from a file. </span>
         <span class="n">uic</span><span class="o">.</span><span class="n">loadUi</span><span class="p">(</span><span class="n">ui_single_path</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">setFixedSize</span><span class="p">(</span><span class="mi">1036</span><span class="p">,</span> <span class="mi">666</span><span class="p">)</span>
+        <span class="c1"># self.setFixedSize(1036, 666)</span>
 
         <span class="c1"># Create the Video Stream Thread</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stream_thread</span> <span class="o">=</span> <span class="n">StreamThread</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stream_thread</span><span class="o">.</span><span class="n">update_img_signal</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_image</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stream_thread</span><span class="o">.</span><span class="n">stream_off_signal</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stream_off</span><span class="p">)</span>
 
-        <span class="c1"># define our widgets</span>
+        <span class="c1"># Methods to load the widgets we need access to,</span>
+        <span class="c1"># and connect their buttons. </span>
         <span class="bp">self</span><span class="o">.</span><span class="n">load_widgets</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">connect_buttons</span><span class="p">()</span> 
-       
-        <span class="bp">self</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-    
-<div class="viewcode-block" id="UI_Single_Mode.load_widgets"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.load_widgets">[docs]</a>    <span class="k">def</span> <span class="nf">load_widgets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect_buttons</span><span class="p">()</span>
         
-        <span class="c1"># Labels </span>
+        <span class="c1"># This list will hold the destination points </span>
+        <span class="c1"># if the generate circle method is used. </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">circle_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># This list will hold the points the drone has visited </span>
+        <span class="c1"># so we can display them as a different color.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">visited_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Flag for custom list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">recording_list</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Show the UI</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="UI_Single_Mode.load_widgets"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.load_widgets">[docs]</a>    <span class="k">def</span> <span class="nf">load_widgets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method to load the widget objects we use from the UI file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Labels</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">label_image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLabel</span><span class="p">,</span> <span class="s2">&quot;label_image&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_image</span><span class="o">.</span><span class="n">mousePressEvent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">recording_click_event</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">label_flags</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLabel</span><span class="p">,</span> <span class="s2">&quot;label_flags&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">label_flags</span><span class="o">.</span><span class="n">setWordWrap</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
 
@@ -109,6 +142,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_drone_connect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">,</span> <span class="s2">&quot;pushButton_drone_connect&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_drone_disconnect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">,</span> <span class="s2">&quot;pushButton_drone_disconnect&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_load_presets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">,</span> <span class="s2">&quot;pushButton_load_presets&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_load_tunings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">,</span> <span class="s2">&quot;pushButton_load_tunings&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_save_tunings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">,</span> <span class="s2">&quot;pushButton_save_tunings&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_generate_circle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">,</span> <span class="s2">&quot;pushButton_generate_circle&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_generate_star</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">,</span> <span class="s2">&quot;pushButton_generate_star&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_record_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">,</span> <span class="s2">&quot;pushButton_record_list&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushbutton_finished_recording</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">,</span> <span class="s2">&quot;pushButton_finished_recording&quot;</span><span class="p">)</span>
 
         <span class="c1"># Line Edit&#39;s </span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_drone_ip</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLineEdit</span><span class="p">,</span> <span class="s2">&quot;lineEdit_drone_ip&quot;</span><span class="p">)</span>
@@ -120,12 +159,20 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_kd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLineEdit</span><span class="p">,</span> <span class="s2">&quot;lineEdit_y_kd&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_set</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLineEdit</span><span class="p">,</span> <span class="s2">&quot;lineEdit_x_set&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_set</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLineEdit</span><span class="p">,</span> <span class="s2">&quot;lineEdit_y_set&quot;</span><span class="p">)</span>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cir_centerx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLineEdit</span><span class="p">,</span> <span class="s2">&quot;lineEdit_cir_centerx&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cir_centery</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLineEdit</span><span class="p">,</span> <span class="s2">&quot;lineEdit_cir_centery&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cir_radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLineEdit</span><span class="p">,</span> <span class="s2">&quot;lineEdit_cir_radius&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cir_number</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLineEdit</span><span class="p">,</span> <span class="s2">&quot;lineEdit_cir_num&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cir_centerx_2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLineEdit</span><span class="p">,</span> <span class="s2">&quot;lineEdit_cir_centerx_2&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cir_centery_2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLineEdit</span><span class="p">,</span> <span class="s2">&quot;lineEdit_cir_centery_2&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cir_radius_2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QLineEdit</span><span class="p">,</span> <span class="s2">&quot;lineEdit_cir_radius_2&quot;</span><span class="p">)</span>
         <span class="c1"># Menu Button</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action_swarm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findChild</span><span class="p">(</span><span class="n">QAction</span><span class="p">,</span> <span class="s2">&quot;action_swarm&quot;</span><span class="p">)</span></div>
     
 <div class="viewcode-block" id="UI_Single_Mode.connect_buttons"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.connect_buttons">[docs]</a>    <span class="k">def</span> <span class="nf">connect_buttons</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method to connect the buttons from the UI to the methods they need to call</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_video_stream</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stream_thread</span><span class="o">.</span><span class="n">clicked_video_stream</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_program_start</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clicked_program_start</span><span class="p">)</span> 
         <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_create_pid</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clicked_create_pid</span><span class="p">)</span> 
@@ -134,30 +181,188 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_drone_connect</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clicked_drone_connect</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_drone_disconnect</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clicked_drone_disconnect</span><span class="p">)</span> 
         <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_load_presets</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clicked_load_presets</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_load_tunings</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clicked_load_tunings</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_save_tunings</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clicked_save_tunings</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_generate_circle</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clicked_generate_circle</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_generate_star</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clicked_generate_star</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushButton_record_list</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clicked_record_list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pushbutton_finished_recording</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clicked_finished_recording</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">action_swarm</span><span class="o">.</span><span class="n">triggered</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clicked_view_action_swarm</span><span class="p">)</span></div>
     
+<div class="viewcode-block" id="UI_Single_Mode.clicked_generate_circle"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.clicked_generate_circle">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_generate_circle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Responds to the generate_circle button press. </span>
+<span class="sd">        Will make a list of points that lie on a circle of </span>
+<span class="sd">        center: (center_x, center_y),</span>
+<span class="sd">        with a radius of radius,</span>
+<span class="sd">        and contains num number of points. </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span> 
+            <span class="c1"># Try to read the values of the text edits </span>
+
+            <span class="c1"># Center Points</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cir_centerx</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cir_centery</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+            
+            <span class="c1"># Radius and number of poitns </span>
+            <span class="n">radius</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cir_radius</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+            <span class="n">num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cir_number</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;There was an error handling clicked_generate_circle:&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># If everything went well</span>
+
+            <span class="c1"># Make the center coordinate</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cir_center</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+
+            <span class="c1"># Generate the list of points on the circle</span>
+            <span class="c1"># that is centered at cir_center, with radius of radius, and</span>
+            <span class="c1"># contains num number of points</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">circle_list</span> <span class="o">=</span> <span class="n">generate_circle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cir_center</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">num</span><span class="p">)</span>
+
+            <span class="c1"># Set the label for the UI to show the circle points </span>
+            <span class="c1"># as the flag points</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label_flags</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">circle_list</span><span class="p">))</span>
+
+            <span class="c1"># Update the destination points to be the circle_list. </span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">circle_list</span>
+
+            <span class="c1"># Empty the visited signal </span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">visited_list</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+<div class="viewcode-block" id="UI_Single_Mode.clicked_generate_star"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.clicked_generate_star">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_generate_star</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Method to generate a list of points for a star&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span> 
+            <span class="c1"># Try to read the values of the text edits </span>
+
+            <span class="c1"># Center Point</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cir_centerx_2</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cir_centery_2</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+            
+            <span class="c1"># Radius</span>
+            <span class="n">radius</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cir_radius_2</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;There was an error handling clicked_generate_circle:&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># If everything went well</span>
+
+            <span class="c1"># Make the center coordinate</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cir_center</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+
+            <span class="c1"># Generate the list of points on the circle</span>
+            <span class="c1"># that is centered at cir_center, with radius of radius, and</span>
+            <span class="c1"># contains num number of points</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">circle_list</span> <span class="o">=</span> <span class="n">generate_star</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cir_center</span><span class="p">,</span> <span class="n">radius</span><span class="p">)</span>
+
+            <span class="c1"># Set the label for the UI to show the circle points </span>
+            <span class="c1"># as the flag points</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label_flags</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">circle_list</span><span class="p">))</span>
+
+            <span class="c1"># Update the destination points to be the circle_list. </span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">circle_list</span>
+
+            <span class="c1"># Empty the visited signal </span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">visited_list</span> <span class="o">=</span> <span class="p">[]</span></div>
 <div class="viewcode-block" id="UI_Single_Mode.update_image"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.update_image">[docs]</a>    <span class="nd">@pyqtSlot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">update_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cv_img</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method to update the label of the video feed label on the UI</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Check to see if we have generated a circle path. </span>
+        <span class="c1"># If so, display that path</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">circle_list</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">circle_list</span><span class="p">:</span>
+                <span class="n">cv2</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">cv_img</span><span class="p">,</span> <span class="n">point</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        
+        <span class="c1"># Check to see if we have already visited some of the points on the </span>
+        <span class="c1"># circular path. If so, draw those points as green</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">visited_list</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">visited_list</span><span class="p">:</span>
+                <span class="n">cv2</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">cv_img</span><span class="p">,</span> <span class="n">point</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Convert the BGR image to RGB</span>
         <span class="n">rgb_img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">cv_img</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span><span class="p">)</span>
+
+        <span class="c1"># Convert the image to the PyQT format</span>
         <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">ch</span> <span class="o">=</span> <span class="n">rgb_img</span><span class="o">.</span><span class="n">shape</span>
         <span class="n">bytes_per_line</span> <span class="o">=</span> <span class="n">ch</span> <span class="o">*</span> <span class="n">w</span>
         <span class="n">qt_format</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QImage</span><span class="p">(</span><span class="n">rgb_img</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">bytes_per_line</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QImage</span><span class="o">.</span><span class="n">Format_RGB888</span><span class="p">)</span>
         <span class="n">qt_image</span> <span class="o">=</span> <span class="n">qt_format</span><span class="o">.</span><span class="n">scaled</span><span class="p">(</span><span class="mi">640</span><span class="p">,</span> <span class="mi">480</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">KeepAspectRatio</span><span class="p">)</span>
+
+        <span class="c1"># Set the image on the GUI </span>
         <span class="bp">self</span><span class="o">.</span><span class="n">label_image</span><span class="o">.</span><span class="n">setPixmap</span><span class="p">(</span><span class="n">QPixmap</span><span class="o">.</span><span class="n">fromImage</span><span class="p">(</span><span class="n">qt_image</span><span class="p">))</span></div>
     
 <div class="viewcode-block" id="UI_Single_Mode.stream_off"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.stream_off">[docs]</a>    <span class="nd">@pyqtSlot</span><span class="p">()</span>
     <span class="k">def</span> <span class="nf">stream_off</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Method to turn of the live video feed based on a signal&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">label_image</span><span class="o">.</span><span class="n">setPixmap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stream_thread</span><span class="o">.</span><span class="n">no_stream_img</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="UI_Single_Mode.update_visited"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.update_visited">[docs]</a>    <span class="nd">@pyqtSlot</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">update_visited</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visited</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Method to update the visited list form the program thread &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">visited_list</span> <span class="o">=</span> <span class="n">visited</span></div>
+
 <div class="viewcode-block" id="UI_Single_Mode.clicked_program_start"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.clicked_program_start">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_program_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method will respond to the button that starts the program.</span>
+<span class="sd">        It sets up the ProgramThread class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">program_thread</span> <span class="o">=</span> <span class="n">SingleProgramThread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">drone</span><span class="o">.</span><span class="n">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pid_controller</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span><span class="p">)</span>
+
+            <span class="c1"># If the stream is running, turn it off to prevent concurance issues.</span>
+            <span class="c1"># The Program Thread will turn it back on. </span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream_thread</span><span class="o">.</span><span class="n">_run_flag</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stream_thread</span><span class="o">.</span><span class="n">_run_flag</span> <span class="o">=</span> <span class="kc">False</span>
+            
+            <span class="c1"># Turn off recording mode</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">recording_list</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="c1"># Create the ProgramThread object. </span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">program_thread</span> <span class="o">=</span> <span class="n">SingleProgramThread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">drone</span><span class="o">.</span><span class="n">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pid_controller</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span><span class="p">[:])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">program_thread</span><span class="o">.</span><span class="n">turn_stream_on_signal</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stream_thread</span><span class="o">.</span><span class="n">clicked_video_stream</span><span class="p">)</span>
+            <span class="c1"># The program thread will signal when it has an image to show</span>
+            <span class="c1"># and when the drone has successfully visited a point. This code</span>
+            <span class="c1"># connects those singals to their respective functions.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">program_thread</span><span class="o">.</span><span class="n">update_img_signal</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_image</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">program_thread</span><span class="o">.</span><span class="n">visited_signal</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_visited</span><span class="p">)</span>
+
+            <span class="c1"># Start the program thread</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">program_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;There was an error during the program start&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Make sure the program thread stops if it started. </span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">program_thread</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">program_thread</span><span class="o">.</span><span class="n">_run_flag</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;An error occured while trying to stop the program thread</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="UI_Single_Mode.clicked_create_pid"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.clicked_create_pid">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_create_pid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Method to create a PID controler object from </span>
+<span class="sd">        the appropriate text edit boxes. </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Make sure the drone object has been created</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">drone</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Please connect to your drone</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> 
+
+        <span class="c1"># Try to load the the tunings from the text edits</span>
+        <span class="c1"># Return if there is an error</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">x_kp</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_kp</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
             <span class="n">x_ki</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_ki</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
@@ -168,87 +373,204 @@
             <span class="n">spx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_set</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
             <span class="n">spy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_set</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using Default vaules due to error...&quot;</span><span class="p">)</span>
-            <span class="n">x_kp</span> <span class="o">=</span> <span class="mf">0.20</span>
-            <span class="n">x_ki</span> <span class="o">=</span> <span class="mf">0.05</span>
-            <span class="n">x_kd</span> <span class="o">=</span> <span class="mf">0.05</span>
-            <span class="n">y_kp</span> <span class="o">=</span> <span class="mf">0.20</span>
-            <span class="n">y_ki</span> <span class="o">=</span> <span class="mf">0.05</span>
-            <span class="n">y_kd</span> <span class="o">=</span> <span class="mf">0.05</span>
-            <span class="n">spx</span> <span class="o">=</span> <span class="mi">320</span>
-            <span class="n">spy</span> <span class="o">=</span> <span class="mi">240</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;There was an error in getting the tunings&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
         
-        <span class="k">if</span> <span class="n">spx</span> <span class="ow">and</span> <span class="n">spy</span><span class="p">:</span> 
+        <span class="c1"># This is the optional parameter for a custom setpoint.</span>
+        <span class="k">if</span> <span class="n">spx</span> <span class="ow">and</span> <span class="n">spy</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">spx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">spx</span><span class="p">)</span>
                 <span class="n">spy</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">spy</span><span class="p">)</span>
+                <span class="n">setpoint</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">spx</span><span class="p">,</span> <span class="n">spy</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Using default setpoints due to error&#39;</span><span class="p">)</span>
-                <span class="n">spx</span> <span class="o">=</span> <span class="mi">320</span>
-                <span class="n">spy</span> <span class="o">=</span> <span class="mi">240</span>
-            
-            <span class="n">setpoint</span> <span class="o">=</span> <span class="n">Point</span><span class="p">(</span><span class="n">spx</span><span class="p">,</span> <span class="n">spy</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;There was an error getting the optional setpoints&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">return</span>
 
+        <span class="c1"># If the optional points aren&#39;t there, then make sure the des_points list is populated</span>
+        <span class="c1"># and set the first point as the set point for the controller.</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span><span class="p">:</span>
-            <span class="n">setpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="n">setpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         
+        <span class="c1"># Try to create the controller object using the information gathered. </span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pid_controller</span> <span class="o">=</span> <span class="n">PidDroneControl</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">drone</span><span class="o">.</span><span class="n">self</span><span class="p">,</span> <span class="n">setpoint</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pid_controller</span><span class="o">.</span><span class="n">pidx</span><span class="o">.</span><span class="n">tunings</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_kp</span><span class="p">,</span> <span class="n">x_ki</span><span class="p">,</span> <span class="n">x_kd</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pid_controller</span><span class="o">.</span><span class="n">pidy</span><span class="o">.</span><span class="n">tunings</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_kp</span><span class="p">,</span> <span class="n">y_ki</span><span class="p">,</span> <span class="n">y_kd</span><span class="p">)</span>
 
-            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pid_controller</span><span class="o">.</span><span class="n">pidx</span><span class="o">.</span><span class="n">setpoint</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pid_controller</span><span class="o">.</span><span class="n">pidy</span><span class="o">.</span><span class="n">setpoint</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;The tunings for the pid controller are:&quot;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pid_controller</span><span class="o">.</span><span class="n">pidx</span><span class="o">.</span><span class="n">tunings</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pid_controller</span><span class="o">.</span><span class="n">pidy</span><span class="o">.</span><span class="n">tunings</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;There was an error in creating the PID controller&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span></div>
         
 <div class="viewcode-block" id="UI_Single_Mode.clicked_emergency_stop"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.clicked_emergency_stop">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_emergency_stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method that will try to gracefully shut </span>
+<span class="sd">        processes down in the event of a failure and </span>
+<span class="sd">        the emergency stop button was clicked.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Try to land the drone </span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">program_thread</span><span class="o">.</span><span class="n">_run_flag</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">program_thread</span><span class="o">.</span><span class="n">drone</span><span class="o">.</span><span class="n">land</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pid_controller</span><span class="o">.</span><span class="n">land</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;An error occured while trying to land the drone&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Try to stop the program thread from running</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">program_thread</span><span class="o">.</span><span class="n">_run_flag</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">program_thread</span><span class="o">.</span><span class="n">_run_flag</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;An error occured while trying to stop the program thread.&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Set the visited list back to empty</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">visited_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Turn back on the normal stream</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stream_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="UI_Single_Mode.clicked_update_flags"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.clicked_update_flags">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_update_flags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Method that will try to update the flags &quot;&quot;&quot;</span>
+        
+        <span class="c1"># Normal mode with the model</span>
         <span class="k">if</span> <span class="s2">&quot;no_model&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">label_flags</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Mod</span><span class="o">.</span><span class="n">flag_centers</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span> <span class="o">=</span> <span class="n">Mod</span><span class="o">.</span><span class="n">flag_centers</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">circle_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span>
+        <span class="c1"># No Model mode / Testing Mode</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span> <span class="o">=</span> <span class="p">[</span><span class="n">Point</span><span class="p">(</span><span class="mi">320</span><span class="p">,</span><span class="mi">240</span><span class="p">)]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">label_flags</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">des_points</span><span class="p">))</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label_flags</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">des_points</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">circle_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span></div>
     
 <div class="viewcode-block" id="UI_Single_Mode.clicked_drone_connect"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.clicked_drone_connect">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_drone_connect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">ip</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_drone_ip</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">drone</span> <span class="o">=</span> <span class="n">Drone</span><span class="p">(</span><span class="n">ip</span><span class="p">)</span></div>
+        <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Method to use the ip from the text edit</span>
+<span class="sd">        to connect to a drone</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ip</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_drone_ip</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">drone</span> <span class="o">=</span> <span class="n">Drone</span><span class="p">(</span><span class="n">ip</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;There was an error connecting to the drone&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
         
 <div class="viewcode-block" id="UI_Single_Mode.clicked_drone_disconnect"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.clicked_drone_disconnect">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_drone_disconnect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">drone</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">drone</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">drone</span><span class="si">=}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method the disconnect from the drone </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">drone</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">drone</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;There was an error disconnecting from the drone&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
     
 <div class="viewcode-block" id="UI_Single_Mode.clicked_load_presets"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.clicked_load_presets">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_load_presets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method to load common text edit values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_drone_ip</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">drone_ips</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_kp</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;0.20&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_ki</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;0.05&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_kd</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;0.05&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_kp</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;0.20&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_ki</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;0.05&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_kd</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;0.05&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_kp</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;.2&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_ki</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_kd</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_kp</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;.2&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_ki</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_kd</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;0&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cir_centerx</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;320&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cir_centery</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;240&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cir_radius</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;100&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cir_number</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="s2">&quot;10&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="UI_Single_Mode.clicked_view_action_swarm"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.clicked_view_action_swarm">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_view_action_swarm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method to open up the multi drone GUI.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span>
         <span class="n">ui_swarm_mode</span> <span class="o">=</span> <span class="n">UI_Swarm_Mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="n">ui_swarm_mode</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
+        <span class="n">ui_swarm_mode</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+    
+<div class="viewcode-block" id="UI_Single_Mode.clicked_load_tunings"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.clicked_load_tunings">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_load_tunings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method to grab the saved tunings from a json file</span>
+<span class="sd">        and set them.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;pid_tunings.json&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">tunings</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_kp</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">tunings</span><span class="p">[</span><span class="s1">&#39;x_kp&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_ki</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">tunings</span><span class="p">[</span><span class="s1">&#39;x_ki&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_kd</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">tunings</span><span class="p">[</span><span class="s1">&#39;x_kd&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_kp</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">tunings</span><span class="p">[</span><span class="s1">&#39;y_kp&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_ki</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">tunings</span><span class="p">[</span><span class="s1">&#39;y_ki&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_kd</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">tunings</span><span class="p">[</span><span class="s1">&#39;y_kd&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cir_centerx</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">tunings</span><span class="p">[</span><span class="s2">&quot;c_x&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cir_centery</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">tunings</span><span class="p">[</span><span class="s2">&quot;c_y&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cir_radius</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">tunings</span><span class="p">[</span><span class="s2">&quot;r&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cir_number</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="n">tunings</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="UI_Single_Mode.clicked_save_tunings"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.clicked_save_tunings">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_save_tunings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method to save tunings to a json file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tunings</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;x_kp&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_kp</span><span class="o">.</span><span class="n">text</span><span class="p">(),</span>
+            <span class="s1">&#39;x_ki&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_ki</span><span class="o">.</span><span class="n">text</span><span class="p">(),</span>
+            <span class="s1">&#39;x_kd&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_x_kd</span><span class="o">.</span><span class="n">text</span><span class="p">(),</span>
+            <span class="s1">&#39;y_kp&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_kp</span><span class="o">.</span><span class="n">text</span><span class="p">(),</span>
+            <span class="s1">&#39;y_ki&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_ki</span><span class="o">.</span><span class="n">text</span><span class="p">(),</span>
+            <span class="s1">&#39;y_kd&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_y_kd</span><span class="o">.</span><span class="n">text</span><span class="p">(),</span>
+            <span class="s1">&#39;c_x&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cir_centerx</span><span class="o">.</span><span class="n">text</span><span class="p">(),</span>
+            <span class="s1">&#39;c_y&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cir_centery</span><span class="o">.</span><span class="n">text</span><span class="p">(),</span>
+            <span class="s1">&#39;r&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cir_radius</span><span class="o">.</span><span class="n">text</span><span class="p">(),</span>
+            <span class="s1">&#39;n&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lineEdit_cir_number</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
+        <span class="p">}</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;pid_tunings.json&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">tunings</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UI_Single_Mode.clicked_record_list"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.clicked_record_list">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_record_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method to set up recording a list&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">recording_list</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">circle_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># Set the label for the UI to show the circle points </span>
+        <span class="c1"># as the flag points</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_flags</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">circle_list</span><span class="p">))</span>
+
+        <span class="c1"># Update the destination points to be the circle_list. </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">circle_list</span></div>
+    
+<div class="viewcode-block" id="UI_Single_Mode.clicked_finished_recording"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.clicked_finished_recording">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_finished_recording</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Method to turn of recording a list &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span><span class="p">[</span><span class="mi">1</span><span class="p">:][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">des_points</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">recording_list</span> <span class="o">=</span> <span class="kc">False</span></div>
+    
+<div class="viewcode-block" id="UI_Single_Mode.recording_click_event"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Single_Mode.recording_click_event">[docs]</a>    <span class="k">def</span> <span class="nf">recording_click_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If the program is in the state of recording a list,</span>
+<span class="sd">        append the point of the click to the list. </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">pos</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="p">()</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">pos</span><span class="p">()</span><span class="o">.</span><span class="n">y</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">recording_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span><span class="p">()</span> <span class="o">==</span> <span class="n">Qt</span><span class="o">.</span><span class="n">LeftButton</span><span class="p">:</span> 
+                <span class="bp">self</span><span class="o">.</span><span class="n">circle_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_flags</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">circle_list</span><span class="p">))</span>
+        <span class="c1"># Update the destination points to be the circle_list. </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">circle_list</span></div></div>
 
 <div class="viewcode-block" id="UI_Swarm_Mode"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Swarm_Mode">[docs]</a><span class="k">class</span> <span class="nc">UI_Swarm_Mode</span><span class="p">(</span><span class="n">QMainWindow</span><span class="p">):</span>
     
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="UI_Swarm_Mode.__init__"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Swarm_Mode.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">UI_Swarm_Mode</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
         <span class="n">uic</span><span class="o">.</span><span class="n">loadUi</span><span class="p">(</span><span class="n">ui_swarm_path</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
 
@@ -257,7 +579,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">stream_thread</span><span class="o">.</span><span class="n">stream_off_signal</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stream_off</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">load_widgets</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">connect_buttons</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect_buttons</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="UI_Swarm_Mode.load_widgets"><a class="viewcode-back" href="../load_ui.html#load_ui.UI_Swarm_Mode.load_widgets">[docs]</a>    <span class="k">def</span> <span class="nf">load_widgets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
@@ -434,23 +756,40 @@
             <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div></div>
 
 <div class="viewcode-block" id="StreamThread"><a class="viewcode-back" href="../load_ui.html#load_ui.StreamThread">[docs]</a><span class="k">class</span> <span class="nc">StreamThread</span><span class="p">(</span><span class="n">QThread</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class that Handles the streaming when the controller is not needed</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Signals for the image and no image </span>
     <span class="n">update_img_signal</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
     <span class="n">stream_off_signal</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="StreamThread.__init__"><a class="viewcode-back" href="../load_ui.html#load_ui.StreamThread.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set up the class </span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        
+        <span class="c1"># Set a run flag that we can access in the GUI part of</span>
+        <span class="c1"># the program</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="c1"># Create a image for use when there is no stream</span>
         <span class="n">no_stream_img</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QImage</span><span class="p">(</span><span class="mi">640</span><span class="p">,</span> <span class="mi">480</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QImage</span><span class="o">.</span><span class="n">Format_Indexed8</span><span class="p">)</span>
         <span class="n">no_stream_img</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">qRgb</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">no_stream_img</span> <span class="o">=</span> <span class="n">QPixmap</span><span class="o">.</span><span class="n">fromImage</span><span class="p">(</span><span class="n">no_stream_img</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">no_stream_img</span> <span class="o">=</span> <span class="n">QPixmap</span><span class="o">.</span><span class="n">fromImage</span><span class="p">(</span><span class="n">no_stream_img</span><span class="p">)</span></div>
     
 <div class="viewcode-block" id="StreamThread.run"><a class="viewcode-back" href="../load_ui.html#load_ui.StreamThread.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run the main function of this thread. </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># Normal mode with the model loaded</span>
         <span class="k">if</span> <span class="s2">&quot;no_model&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">:</span>
-            <span class="c1"># With Model</span>
             <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span><span class="p">:</span>
+                <span class="c1"># Do a detection and update the image </span>
                 <span class="n">img</span> <span class="o">=</span> <span class="n">Mod</span><span class="o">.</span><span class="n">basic_detection</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">update_img_signal</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
@@ -464,17 +803,19 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">stream_off_signal</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span></div>
     
 <div class="viewcode-block" id="StreamThread.clicked_video_stream"><a class="viewcode-back" href="../load_ui.html#load_ui.StreamThread.clicked_video_stream">[docs]</a>    <span class="k">def</span> <span class="nf">clicked_video_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Toggle the stream thread based on a button press &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div></div>
-    
+ 
 <div class="viewcode-block" id="Drone"><a class="viewcode-back" href="../load_ui.html#load_ui.Drone">[docs]</a><span class="k">class</span> <span class="nc">Drone</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot; Class to handle the connection to the drone &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ip</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="Drone.__init__"><a class="viewcode-back" href="../load_ui.html#load_ui.Drone.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ip</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ip</span> <span class="o">=</span> <span class="n">ip</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">self</span> <span class="o">=</span> <span class="n">Tello</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ip</span><span class="p">,</span> <span class="n">retry_count</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span></div>
     
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Drone(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ip</span><span class="si">}</span><span class="s2">, self.self= Tello(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ip</span><span class="si">}</span><span class="s2">))&quot;</span>
@@ -491,44 +832,93 @@
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Ended Connection to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ip</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div></div>
 
 <div class="viewcode-block" id="SingleProgramThread"><a class="viewcode-back" href="../load_ui.html#load_ui.SingleProgramThread">[docs]</a><span class="k">class</span> <span class="nc">SingleProgramThread</span><span class="p">(</span><span class="n">QThread</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class that handles the main program logic.</span>
+<span class="sd">    This class is responsible for controlling the drone to the set points</span>
+<span class="sd">    defined by the destination list. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># A signal to update the points the drone has visisted to the main GUI </span>
+    <span class="n">visited_signal</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    <span class="c1"># The stream thread will no longer handle the webcam, so this thread also needs a image signal. </span>
+    <span class="n">update_img_signal</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+    <span class="n">turn_stream_on_signal</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">drone</span><span class="p">:</span><span class="n">Tello</span><span class="p">,</span> <span class="n">controller</span><span class="p">:</span> <span class="n">PidDroneControl</span><span class="p">,</span> <span class="n">des_points</span><span class="p">):</span>
+<div class="viewcode-block" id="SingleProgramThread.__init__"><a class="viewcode-back" href="../load_ui.html#load_ui.SingleProgramThread.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">drone</span><span class="p">:</span><span class="n">Tello</span><span class="p">,</span> <span class="n">controller</span><span class="p">:</span> <span class="n">PidDroneControl</span><span class="p">,</span> <span class="n">des_points</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set up the class </span>
+
+<span class="sd">        drone: A tello object </span>
+<span class="sd">        controller: Our Custom PidDroneControl object</span>
+<span class="sd">        des_points: A list of points for the drone to visit. </span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        
         <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">drone</span><span class="p">:</span> <span class="n">Tello</span> <span class="o">=</span> <span class="n">drone</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">controller</span> <span class="o">=</span> <span class="n">controller</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span> <span class="o">=</span> <span class="n">des_points</span>
-    
+        <span class="bp">self</span><span class="o">.</span><span class="n">visited</span> <span class="o">=</span> <span class="p">[]</span></div>
+
 <div class="viewcode-block" id="SingleProgramThread.run"><a class="viewcode-back" href="../load_ui.html#load_ui.SingleProgramThread.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span> <span class="o">=</span> <span class="kc">True</span>
         
         <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Allow the drone to take off.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">drone</span><span class="o">.</span><span class="n">takeoff</span><span class="p">()</span>
+            <span class="n">des</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
             <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span><span class="p">:</span>
+                
+                <span class="c1"># Use our tensorflow model and custom Model class to make a detection </span>
+                <span class="n">img</span> <span class="o">=</span> <span class="n">Mod</span><span class="o">.</span><span class="n">basic_detection</span><span class="p">()</span>
+                <span class="c1"># Emit the image for the video stream </span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_img_signal</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+
+                <span class="c1"># If the controler needs a new point </span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">new_point</span><span class="p">:</span>
+
+                    <span class="c1"># Make sure there are still destination points</span>
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span><span class="p">:</span>
+
+                        <span class="c1"># Update the visited points with the last destination</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">visited</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">des</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">visited_signal</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">visited</span><span class="p">)</span>
+
+                        <span class="c1"># Get a new destination and update the controller </span>
                         <span class="n">des</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">update_setpoints</span><span class="p">(</span><span class="n">des</span><span class="p">)</span>
+
+                    <span class="c1"># If there are not still destination points left </span>
                     <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># Land the drone </span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">drone</span><span class="o">.</span><span class="n">land</span><span class="p">()</span>
+                        
+                        <span class="bp">self</span><span class="o">.</span><span class="n">turn_stream_on_signal</span><span class="o">.</span><span class="n">emit</span><span class="p">()</span>
+                        <span class="c1"># Stop running this loop</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span> <span class="o">=</span> <span class="kc">False</span>
+
+                <span class="c1"># If the controller doesn&#39;t need a new point </span>
                 <span class="k">else</span><span class="p">:</span>
+                    
+                    <span class="c1"># Update the velocity</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">update_velocity</span><span class="p">()</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">d2d</span><span class="p">)</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">wait_time</span><span class="p">)</span>
+
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div></div>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;There was an error trying to run the main program&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>   
+            <span class="nb">print</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span> <span class="o">=</span> <span class="kc">False</span></div></div>
 
 <div class="viewcode-block" id="SwarmProgramThread"><a class="viewcode-back" href="../load_ui.html#load_ui.SwarmProgramThread">[docs]</a><span class="k">class</span> <span class="nc">SwarmProgramThread</span><span class="p">(</span><span class="n">QThread</span><span class="p">):</span>
     <span class="n">update_navigation_signal</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">swarm</span><span class="p">,</span> <span class="n">controllers</span><span class="p">,</span> <span class="n">des_points</span><span class="p">):</span>
+<div class="viewcode-block" id="SwarmProgramThread.__init__"><a class="viewcode-back" href="../load_ui.html#load_ui.SwarmProgramThread.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">swarm</span><span class="p">,</span> <span class="n">controllers</span><span class="p">,</span> <span class="n">des_points</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">controllers</span> <span class="o">=</span> <span class="n">controllers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">des_points</span> <span class="o">=</span> <span class="n">des_points</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">swarm</span> <span class="o">=</span> <span class="n">swarm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">swarm</span> <span class="o">=</span> <span class="n">swarm</span></div>
     
 <div class="viewcode-block" id="SwarmProgramThread.run"><a class="viewcode-back" href="../load_ui.html#load_ui.SwarmProgramThread.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span> <span class="o">=</span> <span class="kc">True</span>
@@ -556,6 +946,37 @@
             <span class="n">nav_string</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;Controller </span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="s2"> is navigating to: </span><span class="si">{</span><span class="n">controller</span><span class="o">.</span><span class="n">setpoint</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">update_navigation_signal</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">nav_string</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="GraphInfo"><a class="viewcode-back" href="../load_ui.html#load_ui.GraphInfo">[docs]</a><span class="k">class</span> <span class="nc">GraphInfo</span><span class="p">(</span><span class="n">QThread</span><span class="p">):</span>
+    <span class="n">update_plots_signal</span> <span class="o">=</span> <span class="n">pyqtSignal</span><span class="p">(</span><span class="nb">tuple</span><span class="p">)</span>
+
+<div class="viewcode-block" id="GraphInfo.__init__"><a class="viewcode-back" href="../load_ui.html#load_ui.GraphInfo.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_list</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y_list</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_list</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span> <span class="o">=</span> <span class="kc">False</span></div>
+    
+<div class="viewcode-block" id="GraphInfo.run"><a class="viewcode-back" href="../load_ui.html#load_ui.GraphInfo.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span><span class="p">:</span> 
+                <span class="n">position</span> <span class="o">=</span> <span class="n">ID</span><span class="o">.</span><span class="n">instances</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">position</span>
+                <span class="c1"># self.x_list = self.x_list[1:]</span>
+                <span class="c1"># self.y_list = self.y_list[1:]</span>
+                <span class="c1"># self.time_list = self.time_list[1:]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">x_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">y_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">time_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_plots_signal</span><span class="o">.</span><span class="n">emit</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">x_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_list</span><span class="p">))</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span> <span class="o">=</span> <span class="kc">False</span></div>
+    
+<div class="viewcode-block" id="GraphInfo.stop"><a class="viewcode-back" href="../load_ui.html#load_ui.GraphInfo.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run_flag</span> <span class="o">=</span> <span class="kc">False</span></div></div>
 
 <span class="c1"># Initialize the app</span>
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>

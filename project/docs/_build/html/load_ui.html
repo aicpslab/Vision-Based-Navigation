@@ -84,70 +84,143 @@
 <dt class="sig sig-object py" id="load_ui.UI_Single_Mode">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">load_ui.</span></span><span class="sig-name descname"><span class="pre">UI_Single_Mode</span></span><a class="reference internal" href="_modules/load_ui.html#UI_Single_Mode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.UI_Single_Mode" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QMainWindow</span></code></p>
+<p>Class that handles the UI for the single drone version of the app.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="load_ui.UI_Single_Mode.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#UI_Single_Mode.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.UI_Single_Mode.__init__" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Set Up the UI</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="load_ui.UI_Single_Mode.load_widgets">
 <span class="sig-name descname"><span class="pre">load_widgets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#UI_Single_Mode.load_widgets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.UI_Single_Mode.load_widgets" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Method to load the widget objects we use from the UI file.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="load_ui.UI_Single_Mode.connect_buttons">
 <span class="sig-name descname"><span class="pre">connect_buttons</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#UI_Single_Mode.connect_buttons"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.UI_Single_Mode.connect_buttons" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Method to connect the buttons from the UI to the methods they need to call</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="load_ui.UI_Single_Mode.clicked_generate_circle">
+<span class="sig-name descname"><span class="pre">clicked_generate_circle</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#UI_Single_Mode.clicked_generate_circle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.UI_Single_Mode.clicked_generate_circle" title="Permalink to this definition"></a></dt>
+<dd><p>Responds to the generate_circle button press. 
+Will make a list of points that lie on a circle of 
+center: (center_x, center_y),
+with a radius of radius,
+and contains num number of points.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="load_ui.UI_Single_Mode.clicked_generate_star">
+<span class="sig-name descname"><span class="pre">clicked_generate_star</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#UI_Single_Mode.clicked_generate_star"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.UI_Single_Mode.clicked_generate_star" title="Permalink to this definition"></a></dt>
+<dd><p>Method to generate a list of points for a star</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="load_ui.UI_Single_Mode.update_image">
 <span class="sig-name descname"><span class="pre">update_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cv_img</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#UI_Single_Mode.update_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.UI_Single_Mode.update_image" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Method to update the label of the video feed label on the UI</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="load_ui.UI_Single_Mode.stream_off">
 <span class="sig-name descname"><span class="pre">stream_off</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#UI_Single_Mode.stream_off"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.UI_Single_Mode.stream_off" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Method to turn of the live video feed based on a signal</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="load_ui.UI_Single_Mode.update_visited">
+<span class="sig-name descname"><span class="pre">update_visited</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">visited</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#UI_Single_Mode.update_visited"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.UI_Single_Mode.update_visited" title="Permalink to this definition"></a></dt>
+<dd><p>Method to update the visited list form the program thread</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="load_ui.UI_Single_Mode.clicked_program_start">
 <span class="sig-name descname"><span class="pre">clicked_program_start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#UI_Single_Mode.clicked_program_start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.UI_Single_Mode.clicked_program_start" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>This method will respond to the button that starts the program.
+It sets up the ProgramThread class.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="load_ui.UI_Single_Mode.clicked_create_pid">
 <span class="sig-name descname"><span class="pre">clicked_create_pid</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#UI_Single_Mode.clicked_create_pid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.UI_Single_Mode.clicked_create_pid" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Method to create a PID controler object from 
+the appropriate text edit boxes.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="load_ui.UI_Single_Mode.clicked_emergency_stop">
 <span class="sig-name descname"><span class="pre">clicked_emergency_stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#UI_Single_Mode.clicked_emergency_stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.UI_Single_Mode.clicked_emergency_stop" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Method that will try to gracefully shut 
+processes down in the event of a failure and 
+the emergency stop button was clicked.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="load_ui.UI_Single_Mode.clicked_update_flags">
 <span class="sig-name descname"><span class="pre">clicked_update_flags</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#UI_Single_Mode.clicked_update_flags"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.UI_Single_Mode.clicked_update_flags" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Method that will try to update the flags</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="load_ui.UI_Single_Mode.clicked_drone_connect">
 <span class="sig-name descname"><span class="pre">clicked_drone_connect</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#UI_Single_Mode.clicked_drone_connect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.UI_Single_Mode.clicked_drone_connect" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Method to use the ip from the text edit
+to connect to a drone</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="load_ui.UI_Single_Mode.clicked_drone_disconnect">
 <span class="sig-name descname"><span class="pre">clicked_drone_disconnect</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#UI_Single_Mode.clicked_drone_disconnect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.UI_Single_Mode.clicked_drone_disconnect" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Method the disconnect from the drone</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="load_ui.UI_Single_Mode.clicked_load_presets">
 <span class="sig-name descname"><span class="pre">clicked_load_presets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#UI_Single_Mode.clicked_load_presets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.UI_Single_Mode.clicked_load_presets" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Method to load common text edit values</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="load_ui.UI_Single_Mode.clicked_view_action_swarm">
 <span class="sig-name descname"><span class="pre">clicked_view_action_swarm</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#UI_Single_Mode.clicked_view_action_swarm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.UI_Single_Mode.clicked_view_action_swarm" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Method to open up the multi drone GUI.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="load_ui.UI_Single_Mode.clicked_load_tunings">
+<span class="sig-name descname"><span class="pre">clicked_load_tunings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#UI_Single_Mode.clicked_load_tunings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.UI_Single_Mode.clicked_load_tunings" title="Permalink to this definition"></a></dt>
+<dd><p>Method to grab the saved tunings from a json file
+and set them.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="load_ui.UI_Single_Mode.clicked_save_tunings">
+<span class="sig-name descname"><span class="pre">clicked_save_tunings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#UI_Single_Mode.clicked_save_tunings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.UI_Single_Mode.clicked_save_tunings" title="Permalink to this definition"></a></dt>
+<dd><p>Method to save tunings to a json file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="load_ui.UI_Single_Mode.clicked_record_list">
+<span class="sig-name descname"><span class="pre">clicked_record_list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#UI_Single_Mode.clicked_record_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.UI_Single_Mode.clicked_record_list" title="Permalink to this definition"></a></dt>
+<dd><p>Method to set up recording a list</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="load_ui.UI_Single_Mode.clicked_finished_recording">
+<span class="sig-name descname"><span class="pre">clicked_finished_recording</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#UI_Single_Mode.clicked_finished_recording"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.UI_Single_Mode.clicked_finished_recording" title="Permalink to this definition"></a></dt>
+<dd><p>Method to turn of recording a list</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="load_ui.UI_Single_Mode.recording_click_event">
+<span class="sig-name descname"><span class="pre">recording_click_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#UI_Single_Mode.recording_click_event"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.UI_Single_Mode.recording_click_event" title="Permalink to this definition"></a></dt>
+<dd><p>If the program is in the state of recording a list,
+append the point of the click to the list.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -236,6 +309,7 @@
 <dt class="sig sig-object py" id="load_ui.StreamThread">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">load_ui.</span></span><span class="sig-name descname"><span class="pre">StreamThread</span></span><a class="reference internal" href="_modules/load_ui.html#StreamThread"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.StreamThread" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtCore.QThread</span></code></p>
+<p>Class that Handles the streaming when the controller is not needed</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="load_ui.StreamThread.update_img_signal">
 <span class="sig-name descname"><span class="pre">update_img_signal</span></span><a class="headerlink" href="#load_ui.StreamThread.update_img_signal" title="Permalink to this definition"></a></dt>
@@ -249,17 +323,20 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="load_ui.StreamThread.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#StreamThread.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.StreamThread.__init__" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Set up the class</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="load_ui.StreamThread.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#StreamThread.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.StreamThread.run" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#StreamThread.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.StreamThread.run" title="Permalink to this definition"></a></dt>
+<dd><p>Run the main function of this thread.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="load_ui.StreamThread.clicked_video_stream">
 <span class="sig-name descname"><span class="pre">clicked_video_stream</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#StreamThread.clicked_video_stream"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.StreamThread.clicked_video_stream" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Toggle the stream thread based on a button press</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -267,6 +344,7 @@
 <dt class="sig sig-object py" id="load_ui.Drone">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">load_ui.</span></span><span class="sig-name descname"><span class="pre">Drone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ip</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#Drone"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.Drone" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to handle the connection to the drone</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="load_ui.Drone.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ip</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#Drone.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.Drone.__init__" title="Permalink to this definition"></a></dt>
@@ -288,10 +366,32 @@
 <dt class="sig sig-object py" id="load_ui.SingleProgramThread">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">load_ui.</span></span><span class="sig-name descname"><span class="pre">SingleProgramThread</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">drone</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">djitellopy.tello.Tello</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">controller</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="PidDroneControl.html#PidDroneControl.PidDroneControl" title="PidDroneControl.PidDroneControl"><span class="pre">PidDroneControl.PidDroneControl</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">des_points</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#SingleProgramThread"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.SingleProgramThread" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtCore.QThread</span></code></p>
+<p>Class that handles the main program logic.
+This class is responsible for controlling the drone to the set points
+defined by the destination list.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="load_ui.SingleProgramThread.visited_signal">
+<span class="sig-name descname"><span class="pre">visited_signal</span></span><a class="headerlink" href="#load_ui.SingleProgramThread.visited_signal" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="load_ui.SingleProgramThread.update_img_signal">
+<span class="sig-name descname"><span class="pre">update_img_signal</span></span><a class="headerlink" href="#load_ui.SingleProgramThread.update_img_signal" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="load_ui.SingleProgramThread.turn_stream_on_signal">
+<span class="sig-name descname"><span class="pre">turn_stream_on_signal</span></span><a class="headerlink" href="#load_ui.SingleProgramThread.turn_stream_on_signal" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="load_ui.SingleProgramThread.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">drone</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">djitellopy.tello.Tello</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">controller</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="PidDroneControl.html#PidDroneControl.PidDroneControl" title="PidDroneControl.PidDroneControl"><span class="pre">PidDroneControl.PidDroneControl</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">des_points</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#SingleProgramThread.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.SingleProgramThread.__init__" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Set up the class</p>
+<p>drone: A tello object 
+controller: Our Custom PidDroneControl object
+des_points: A list of points for the drone to visit.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="load_ui.SingleProgramThread.run">
@@ -322,6 +422,32 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="load_ui.SwarmProgramThread.update_nav_string">
 <span class="sig-name descname"><span class="pre">update_nav_string</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#SwarmProgramThread.update_nav_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.SwarmProgramThread.update_nav_string" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="load_ui.GraphInfo">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">load_ui.</span></span><span class="sig-name descname"><span class="pre">GraphInfo</span></span><a class="reference internal" href="_modules/load_ui.html#GraphInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.GraphInfo" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtCore.QThread</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="load_ui.GraphInfo.update_plots_signal">
+<span class="sig-name descname"><span class="pre">update_plots_signal</span></span><a class="headerlink" href="#load_ui.GraphInfo.update_plots_signal" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="load_ui.GraphInfo.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#GraphInfo.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.GraphInfo.__init__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="load_ui.GraphInfo.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#GraphInfo.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.GraphInfo.run" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="load_ui.GraphInfo.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/load_ui.html#GraphInfo.stop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#load_ui.GraphInfo.stop" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

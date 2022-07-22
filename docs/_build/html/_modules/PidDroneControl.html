@@ -92,7 +92,7 @@
 <span class="sd">    drone.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">drone_object</span><span class="p">:</span><span class="n">Tello</span><span class="p">,</span> <span class="n">point</span><span class="p">:</span><span class="n">Point</span><span class="p">,</span> <span class="n">instance_num</span><span class="p">,</span> <span class="n">kp</span><span class="p">,</span> <span class="n">ki</span><span class="p">,</span> <span class="n">kd</span><span class="p">):</span>
+<div class="viewcode-block" id="PidDroneControl.__init__"><a class="viewcode-back" href="../PidDroneControl.html#PidDroneControl.PidDroneControl.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">drone_object</span><span class="p">:</span><span class="n">Tello</span><span class="p">,</span> <span class="n">point</span><span class="p">:</span><span class="n">Point</span><span class="p">,</span> <span class="n">instance_num</span><span class="p">,</span> <span class="n">kp</span><span class="p">,</span> <span class="n">ki</span><span class="p">,</span> <span class="n">kd</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sets everything up. Instance_num is vital to ensure proper control.</span>
 <span class="sd">        This instance number links the drone object/ip with its proper ID. </span>
@@ -112,10 +112,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">drone</span> <span class="o">=</span> <span class="n">drone_object</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">time_limit</span> <span class="o">=</span> <span class="mi">10000</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">d2d_range</span> <span class="o">=</span> <span class="mi">20</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_limit</span> <span class="o">=</span> <span class="mi">5</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d2d_range</span> <span class="o">=</span> <span class="mi">30</span>
         <span class="c1"># Set point is relative to the camera pixel.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">range</span> <span class="o">=</span> <span class="mi">50</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">range</span> <span class="o">=</span> <span class="mi">30</span>
         <span class="n">x_set</span> <span class="o">=</span> <span class="n">point</span><span class="o">.</span><span class="n">x</span>
         <span class="n">y_set</span> <span class="o">=</span> <span class="n">point</span><span class="o">.</span><span class="n">y</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">wait_time</span> <span class="o">=</span> <span class="mi">0</span>
@@ -132,7 +132,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">d2d</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">destination</span> <span class="o">=</span> <span class="n">point</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">instance_num</span> <span class="o">=</span> <span class="n">instance_num</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">instance_num</span> <span class="o">=</span> <span class="n">instance_num</span></div>
 
 <div class="viewcode-block" id="PidDroneControl.update_velocity"><a class="viewcode-back" href="../PidDroneControl.html#PidDroneControl.PidDroneControl.update_velocity">[docs]</a>    <span class="k">def</span> <span class="nf">update_velocity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -153,6 +153,7 @@
             <span class="c1">#self.drone.send_rc_control(0, 0, self.u_d_vel, self.yaw_vel)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">drone</span><span class="o">.</span><span class="n">send_rc_control</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">l_r_vel</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f_b_vel</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_d_vel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">yaw_vel</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">wait_time</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d2d</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">wait_time</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_limit</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">drone</span><span class="o">.</span><span class="n">send_rc_control</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">l_r_vel</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f_b_vel</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_d_vel</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">yaw_vel</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -179,8 +180,13 @@
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Method to make the drone fly</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">drone</span><span class="o">.</span><span class="n">takeoff</span><span class="p">()</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drone</span><span class="o">.</span><span class="n">takeoff</span><span class="p">()</span></div>
     
+<div class="viewcode-block" id="PidDroneControl.land"><a class="viewcode-back" href="../PidDroneControl.html#PidDroneControl.PidDroneControl.land">[docs]</a>    <span class="k">def</span> <span class="nf">land</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method to land the drone</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drone</span><span class="o">.</span><span class="n">land</span><span class="p">()</span></div></div>
 </pre></div>
 
            </div>

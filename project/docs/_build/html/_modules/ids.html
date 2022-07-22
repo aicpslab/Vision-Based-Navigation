@@ -13,6 +13,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -262,7 +263,7 @@
         <span class="k">return</span> <span class="n">img</span></div>
 
     <span class="c1"># Instance Methods</span>
-    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ID.__post_init__"><a class="viewcode-back" href="../ids.html#ids.ID.__post_init__">[docs]</a>    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Finishes setting up an individual instance of an ID.</span>
 <span class="sd">        </span>
@@ -276,7 +277,7 @@
 <span class="sd">                                        velocity information.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">position_history</span> <span class="o">=</span> <span class="n">deque</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">],</span> <span class="n">maxlen</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span> <span class="c1">#maxlen was 30</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">velocityTracking</span> <span class="o">=</span> <span class="n">velocityTracker</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">velocityTracking</span> <span class="o">=</span> <span class="n">velocityTracker</span><span class="p">()</span></div>
     
 <div class="viewcode-block" id="ID.appendPosition"><a class="viewcode-back" href="../ids.html#ids.ID.appendPosition">[docs]</a>    <span class="k">def</span> <span class="nf">appendPosition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">:</span><span class="n">Point</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
