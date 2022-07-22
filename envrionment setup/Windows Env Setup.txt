@@ -1,5 +1,7 @@
 ## Windows Machine Installation ##
 
+Clone this repo to a folder of your choosing. 
+
 Visit https://augustauniversity.box.com/s/yciwvr19u4xg2xt3nyvbltxcjfr4yyvb
 and download the folders named "model" and "annotations".
 
