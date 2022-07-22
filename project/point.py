@@ -13,7 +13,6 @@ point.py
 from dataclasses import dataclass
 from math import sqrt
 from collections import Sequence
-from re import X
 
 @dataclass
 class Point(Sequence):

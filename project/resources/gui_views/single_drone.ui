@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1033</width>
+    <width>1361</width>
     <height>666</height>
    </rect>
   </property>
@@ -412,13 +412,156 @@
      <string>Save Tunings</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="pushButton_generate_circle">
+    <property name="geometry">
+     <rect>
+      <x>1020</x>
+      <y>240</y>
+      <width>331</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Generate Circle</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_cir_centery">
+    <property name="geometry">
+     <rect>
+      <x>1020</x>
+      <y>210</y>
+      <width>91</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="placeholderText">
+     <string>center y</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_cir_radius">
+    <property name="geometry">
+     <rect>
+      <x>1140</x>
+      <y>210</y>
+      <width>91</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="placeholderText">
+     <string>raidus</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_cir_num">
+    <property name="geometry">
+     <rect>
+      <x>1260</x>
+      <y>210</y>
+      <width>91</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="placeholderText">
+     <string>num</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_cir_centerx">
+    <property name="geometry">
+     <rect>
+      <x>1020</x>
+      <y>180</y>
+      <width>91</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="placeholderText">
+     <string>center x</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_generate_star">
+    <property name="geometry">
+     <rect>
+      <x>1020</x>
+      <y>360</y>
+      <width>331</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Generate Star</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_cir_centerx_2">
+    <property name="geometry">
+     <rect>
+      <x>1020</x>
+      <y>300</y>
+      <width>91</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="placeholderText">
+     <string>center x</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_cir_centery_2">
+    <property name="geometry">
+     <rect>
+      <x>1020</x>
+      <y>330</y>
+      <width>91</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="placeholderText">
+     <string>center y</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_cir_radius_2">
+    <property name="geometry">
+     <rect>
+      <x>1140</x>
+      <y>330</y>
+      <width>91</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="placeholderText">
+     <string>raidus</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_record_list">
+    <property name="geometry">
+     <rect>
+      <x>1020</x>
+      <y>430</y>
+      <width>331</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Record Custom List</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_finished_recording">
+    <property name="geometry">
+     <rect>
+      <x>1020</x>
+      <y>460</y>
+      <width>331</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Finished Recording List</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1033</width>
+     <width>1361</width>
      <height>26</height>
     </rect>
    </property>

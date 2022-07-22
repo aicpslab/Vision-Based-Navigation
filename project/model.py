@@ -245,5 +245,5 @@ class Model:
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
         img = cv2.putText(img, str(fps), (5, 50), dc.font, dc.font_scale, dc.light_purple, dc.font_thickness, cv2.LINE_AA) 
-        #self.thread_img = img
+        self.thread_img = img
         return self.thread_img

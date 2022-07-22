@@ -46,10 +46,10 @@ class PidDroneControl:
         """
 
         self.drone = drone_object
-        self.time_limit = 10000
-        self.d2d_range = 20
+        self.time_limit = 5
+        self.d2d_range = 30
         # Set point is relative to the camera pixel.
-        self.range = 20
+        self.range = 30
         x_set = point.x
         y_set = point.y
         self.wait_time = 0
@@ -87,6 +87,7 @@ class PidDroneControl:
             #self.drone.send_rc_control(0, 0, self.u_d_vel, self.yaw_vel)
             self.drone.send_rc_control(int(self.l_r_vel), int(self.f_b_vel), self.u_d_vel, self.yaw_vel)
             self.wait_time += 1
+            print(self.d2d)
         elif self.wait_time < self.time_limit:
             self.drone.send_rc_control(int(self.l_r_vel), int(self.f_b_vel), self.u_d_vel, self.yaw_vel)
         else:
