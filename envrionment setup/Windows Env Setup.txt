@@ -1,5 +1,10 @@
 ## Windows Machine Installation ##
 
+Visit https://augustauniversity.box.com/s/yciwvr19u4xg2xt3nyvbltxcjfr4yyvb
+and download the folders named "model" and "annotations".
+
+Place these folders inside the "project/resources" folder.
+
 Install Anaconda Python and Git for Windows.
 
 Create a Python3 conda envrionment- 
